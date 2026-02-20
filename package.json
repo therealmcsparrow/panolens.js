@@ -1,5 +1,5 @@
 {
-  "name": "panolens",
+  "name": "@therealmcsparrow/panolens",
   "version": "0.13.0",
   "description": "Javascript panorama viewer",
   "type": "module",
@@ -37,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/pchen66/panolens.js.git"
+    "url": "https://github.com/therealmcsparrow/panolens.js.git"
   },
   "keywords": [
     "panorama",
@@ -46,12 +46,12 @@
     "html5",
     "3d"
   ],
-  "author": "pchen66",
+  "author": "therealmcsparrow",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pchen66/panolens.js/issues"
+    "url": "https://github.com/therealmcsparrow/panolens.js/issues"
   },
-  "homepage": "https://pchen66.github.io/Panolens/",
+  "homepage": "https://therealmcsparrow.github.io/Panolens/",
   "ava": {
     "files": [
       "./test/**/*.js"
