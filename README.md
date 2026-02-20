@@ -1,99 +1,241 @@
-# Deprecated
-
-This repository will be deprecated due to the rapidly evolving JavaScript ecosystem and the increasing difficulty of keeping up with the changes in the Three.js API.
-
-Over the years, the Three.js library has undergone significant updates and improvements, introducing new features and optimizations. However, these advancements have also led to changes in the API, making it challenging for us to maintain this repository effectively.
-
-We understand that this may be disappointing news for those who have relied on this repository for their projects. We apologize for any inconvenience this may cause.
-
-To ensure that you can continue to benefit from the latest updates and improvements in the Three.js library, we recommend using the official Three.js documentation and resources. The official documentation provides comprehensive guides, examples, and API references to help you leverage the full potential of Three.js in your projects.
-
-Here are some alternative resources that we recommend:
-
-- [Official Three.js Documentation](https://threejs.org/docs/)
-- [Three.js GitHub Repository](https://github.com/mrdoob/three.js/)
-- [Three.js Discourse](https://discourse.threejs.org/)
-
-We want to express our gratitude to the community for your support and contributions to this repository. We encourage you to migrate your projects to alternative solutions as there are many more Javascript-based panorama viewer nowadays compared to 2015.
-
-This repository will remain available for historical purposes, but no further updates or bug fixes will be provided. We encourage you to fork this repository if you wish to continue maintaining it independently.
-
-Thank you for your understanding and continued support.
-
-# Panolens.js
-
-[![NPM package][npm]][npm-url]
-[![License][license]][license-url]
-[![Bundle Size][bundle-size]][bundle-size-url]
-[![Build Status][build-status]][build-status-url]
-[![Dependencies][dependencies]][dependencies-url]
-[![Dev Dependencies][dev-dependencies]][dev-dependencies-url]
-[![Language Grade][lgtm]][lgtm-url]
-[![Coverage][coverage]][coverage-url]
-
-## Javascript 360 Panorama Viewer
-
-Panolens.js is an event-driven and WebGL based panorama viewer. Lightweight and flexible. It's built on top of [Three.JS](https://github.com/mrdoob/three.js).
-
-[Examples](https://pchen66.github.io/Panolens/#Example) &mdash;
-[Documentation](https://pchen66.github.io/panolens.js) &mdash;
-[Migration](https://github.com/pchen66/panolens.js/wiki/MigrationGuide) &mdash;
-[FAQ](https://github.com/pchen66/panolens.js/wiki/Frequently-Asked-Questions)
+<h1 align="center">Panolens.js</h1>
 
 <p align="center">
-  <img alt= "Panorama Demo" style="object-fit:cover" src="https://github.com/pchen66/pchen66.github.io/blob/master/Panolens/images/panolens.gif?raw=true">
+  <strong>The lightweight, event-driven WebGL panorama engine built on Three.js</strong>
 </p>
 
-## Usage
+<p align="center">
+  <a href="https://www.npmjs.com/package/panolens"><img src="https://img.shields.io/npm/v/panolens.svg" alt="NPM Package"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/github/license/therealmcsparrow/panolens.js.svg" alt="License"></a>
+  <a href="https://bundlephobia.com/result?p=panolens"><img src="https://badgen.net/bundlephobia/minzip/panolens" alt="Bundle Size"></a>
+</p>
 
-Include `three.min.js` and `panolens.min.js`
+---
 
-To find the correct supported versions, please check `dependencies` section in `package.json` or acess `PANOLENS.VERSION` or `PANOLENS.THREE_VERSION` at runtime.
+## Why Panolens.js?
+
+Drop a 360 panorama into any web page with **three lines of code**. No bloated frameworks, no complex pipelines &mdash; just a fast, production-ready viewer that works everywhere: desktop, mobile, and VR headsets.
+
+```javascript
+const panorama = new PANOLENS.ImagePanorama('your-360-photo.jpg');
+const viewer = new PANOLENS.Viewer();
+viewer.add(panorama);
+```
+
+**~110 KB minified.** That's it. Your users are already looking around.
+
+---
+
+## Features at a Glance
+
+| | Feature | What you get |
+|---|---|---|
+| **Panorama Types** | Image, Video, Cube Map, Little Planet, Google Street View, Live Camera | Every major 360 format out of the box |
+| **VR Ready** | Google Cardboard & Stereo modes | One toggle to enter immersive VR |
+| **Interactive Hotspots** | Infospots with hover text, click events, and custom images | Build guided tours, product showcases, interactive stories |
+| **Panorama Linking** | Connect scenes with animated transitions | Seamless multi-room walkthroughs |
+| **Device Orientation** | Gyroscope controls on mobile | Look around by moving your phone |
+| **Auto Rotation** | Configurable idle rotation with custom speed | Keep the viewer alive when users aren't interacting |
+| **Gaze Interaction** | Built-in reticle system with dwell-time triggers | Hands-free navigation for VR and kiosk displays |
+| **Video Playback** | Autoplay, loop, progress events, seek | Full 360 video experiences with controls |
+| **Live Camera** | WebRTC MediaStream support | Real-time camera feed as a panorama |
+| **Multi-Viewer** | Multiple independent viewers on a single page | Side-by-side comparisons, dashboards, portals |
+| **Event System** | Rich lifecycle events (load, enter, leave, progress, and more) | Deep integration with your application logic |
+
+---
+
+## Quick Start
+
+### Option 1 &mdash; Script Tags
+
+Include Three.js and Panolens.js directly:
 
 ```html
-<script src="js/three.min.js"></script>
-<script src="js/panolens.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.125.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/panolens@0.13.0/build/panolens.min.js"></script>
 ```
-The following code generates a 360 image panorama. The first panorama added to the viewer will be the entry point. To link panoramas, use `panorama.link( other_panorama, new THREE.Vector3( X, Y, Z ) )` to connect the two.
+
+### Option 2 &mdash; NPM (Recommended)
+
+```bash
+npm install panolens
+```
+
 ```javascript
-const panorama = new PANOLENS.ImagePanorama( 'asset/equirectangular.jpg' );
+import * as PANOLENS from 'panolens';
+
+const panorama = new PANOLENS.ImagePanorama('equirectangular.jpg');
 const viewer = new PANOLENS.Viewer();
-viewer.add( panorama );
+viewer.add(panorama);
 ```
- 
-## Dependency
 
-Panolens.js includes [Tween.js](https://github.com/tweenjs/tween.js/) by default, meaning `TWEEN` will be available with `window` object
+> **Version compatibility:** Check `PANOLENS.VERSION` and `PANOLENS.THREE_VERSION` at runtime, or see `dependencies` in `package.json` for the supported Three.js range.
 
-## How to contribute
+---
 
-Always make your contributions for the latest `dev` branch, not `master`, so it can be tracked for the next release. 
+## Panorama Types
 
-### **Development**
+### 360 Image
+```javascript
+const panorama = new PANOLENS.ImagePanorama('360-photo.jpg');
 ```
+
+### 360 Video
+```javascript
+const panorama = new PANOLENS.VideoPanorama('360-video.mp4', {
+  autoplay: true,
+  muted: true,
+  loop: true
+});
+```
+
+### Cube Map
+```javascript
+const panorama = new PANOLENS.CubePanorama([
+  'px.jpg', 'nx.jpg',
+  'py.jpg', 'ny.jpg',
+  'pz.jpg', 'nz.jpg'
+]);
+```
+
+### Little Planet
+```javascript
+const panorama = new PANOLENS.ImageLittlePlanet('360-photo.jpg');
+```
+
+### Google Street View
+```javascript
+const panorama = new PANOLENS.GoogleStreetviewPanorama('pano_id_here');
+```
+
+### Live Camera Feed
+```javascript
+const panorama = new PANOLENS.CameraPanorama();
+```
+
+---
+
+## Interactive Hotspots & Scene Linking
+
+Build immersive guided tours by placing hotspots and linking scenes together:
+
+```javascript
+const lobby = new PANOLENS.ImagePanorama('lobby.jpg');
+const office = new PANOLENS.ImagePanorama('office.jpg');
+
+// Link scenes with navigation arrows
+lobby.link(office, new THREE.Vector3(2000, 0, -3000));
+office.link(lobby, new THREE.Vector3(-2000, 0, 3000));
+
+// Add an interactive infospot
+const info = new PANOLENS.Infospot(350, PANOLENS.DataImage.Info);
+info.position.set(3000, 500, -2000);
+info.addHoverText('Welcome to the Office');
+lobby.add(info);
+
+const viewer = new PANOLENS.Viewer();
+viewer.add(lobby, office);
+```
+
+---
+
+## VR & Device Controls
+
+Switch between viewing modes with a single call:
+
+```javascript
+// Google Cardboard VR
+viewer.enableEffect(PANOLENS.MODES.CARDBOARD);
+
+// Stereo 3D
+viewer.enableEffect(PANOLENS.MODES.STEREO);
+
+// Mobile gyroscope
+viewer.enableControl(PANOLENS.CONTROLS.DEVICEORIENTATION);
+
+// Back to standard mouse/touch
+viewer.enableControl(PANOLENS.CONTROLS.ORBIT);
+viewer.enableEffect(PANOLENS.MODES.NORMAL);
+```
+
+---
+
+## Viewer Configuration
+
+Fine-tune every aspect of the viewing experience:
+
+```javascript
+const viewer = new PANOLENS.Viewer({
+  container: document.getElementById('my-container'), // Custom DOM container
+  controlBar: true,                    // Show/hide control bar
+  viewIndicator: true,                 // Orientation compass
+  autoRotate: true,                    // Idle rotation
+  autoRotateSpeed: 2,                  // Rotation speed
+  autoRotateActivationDuration: 5000,  // ms before auto-rotate kicks in
+  enableReticle: true,                 // Gaze-based reticle for VR
+  dwellTime: 1500,                     // Reticle dwell trigger (ms)
+  cameraFov: 60,                       // Field of view
+  reverseDragging: false,              // Invert drag direction
+  horizontalView: false,               // Lock vertical axis
+  output: 'none'                       // Debug: 'console' or 'overlay'
+});
+```
+
+---
+
+## Use Cases
+
+- **Real Estate** &mdash; Virtual property tours with room-to-room navigation
+- **Tourism & Hospitality** &mdash; Explore hotels, resorts, and destinations before booking
+- **E-Commerce** &mdash; 360 product showcases and showrooms
+- **Education** &mdash; Interactive museum exhibits and virtual field trips
+- **Events** &mdash; Immersive recaps of concerts, conferences, and weddings
+- **Architecture** &mdash; Walk clients through renders before construction begins
+
+---
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start dev server with hot reload (http://localhost:3580)
 npm start
+
+# Lint
+npm run lint
+
+# Run tests with coverage
+npm test
+
+# Production build
+npm run build
 ```
 
-### **Build**
-```
-npm run build-closure
-```
+### Contributing
 
-[npm]: https://img.shields.io/npm/v/panolens.svg
-[npm-url]:https://www.npmjs.com/package/panolens
-[license]: https://img.shields.io/github/license/pchen66/panolens.js.svg
-[license-url]: ./LICENSE
-[bundle-size]: https://badgen.net/bundlephobia/minzip/panolens
-[bundle-size-url]: https://bundlephobia.com/result?p=panolens
-[build-status]: https://travis-ci.com/pchen66/panolens.js.svg?branch=dev
-[build-status-url]: https://travis-ci.com/pchen66/panolens.js
-[dependencies]: https://img.shields.io/david/pchen66/panolens.js.svg
-[dependencies-url]: https://david-dm.org/pchen66/panolens.js
-[dev-dependencies]: https://img.shields.io/david/dev/pchen66/panolens.js.svg
-[dev-dependencies-url]: https://david-dm.org/pchen66/panolens.js?type=dev
-[lgtm]: https://img.shields.io/lgtm/grade/javascript/g/pchen66/panolens.js.svg?logo=lgtm&logoWidth=18&label=code%20quality
-[lgtm-url]: https://lgtm.com/projects/g/pchen66/panolens.js/context:javascript
-[coverage]: https://coveralls.io/repos/github/pchen66/panolens.js/badge.svg?branch=dev
-[coverage-url]: https://coveralls.io/github/pchen66/panolens.js?branch=dev
-[panolens-support]: https://pics.paypal.com/00/p/NDIyZmRiMGEtMGQyMy00Y2QzLWI1YWQtZmY1OGI1MzRjNDYw/image_2.PNG
-[panolens-support-url]: https://www.paypal.me/panolens
+Contributions are welcome! Please target the `dev` branch for all pull requests so changes can be tracked for the next release.
+
+---
+
+## Browser Support
+
+Panolens.js runs anywhere WebGL runs:
+
+- Chrome, Edge, Firefox, Safari (latest)
+- iOS Safari, Android Chrome
+- Google Cardboard & compatible VR viewers
+- Works in iframes and custom containers
+
+---
+
+## License
+
+[MIT](./LICENSE) &mdash; free for personal and commercial use.
+
+---
+
+<p align="center">
+  <sub>Built with Three.js. Inspired by the belief that immersive web experiences should be simple to create.</sub>
+</p>
