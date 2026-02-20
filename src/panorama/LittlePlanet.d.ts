@@ -14,7 +14,7 @@ export class LittlePlanet extends ImagePanorama {
 
   constructor(type: string, source: string, size?: number, ratio?: number);
 
-  createGeometry(size: number, ratio: number): THREE.PlaneBufferGeometry;
+  createGeometry(size: number, ratio: number): THREE.PlaneGeometry;
 
   createMaterial(size: number): THREE.ShaderMaterial;
 

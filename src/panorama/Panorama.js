@@ -298,6 +298,18 @@ Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
      */
     updateTexture: function ( texture ) {
 
+        const previousMap = this.material.map;
+
+        if ( previousMap ) {
+
+            texture.minFilter = previousMap.minFilter;
+            texture.magFilter = previousMap.magFilter;
+            texture.wrapS = previousMap.wrapS;
+            texture.wrapT = previousMap.wrapT;
+            texture.mapping = previousMap.mapping;
+
+        }
+
         this.material.map = texture;
         this.material.needsUpdate = true;
 

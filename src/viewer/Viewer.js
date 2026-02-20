@@ -1357,13 +1357,22 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
         this.userMouse.x = ( event.clientX >= 0 ) ? event.clientX : event.touches[0].clientX;
         this.userMouse.y = ( event.clientY >= 0 ) ? event.clientY : event.touches[0].clientY;
         this.userMouse.type = 'mousedown';
-        this.onTap( event );
+
+        if ( event.touches && event.touches.length === 1 ) {
+
+            this.onTap( { clientX: event.touches[0].clientX, clientY: event.touches[0].clientY } );
+
+        } else {
+
+            this.onTap( event );
+
+        }
 
     },
 
     /**
      * On mouse move
-     * @param {MouseEvent} event 
+     * @param {MouseEvent} event
      * @memberOf Viewer
      * @instance
      */
@@ -1371,7 +1380,16 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
 
         event.preventDefault();
         this.userMouse.type = 'mousemove';
-        this.onTap( event );
+
+        if ( event.touches && event.touches.length === 1 ) {
+
+            this.onTap( { clientX: event.touches[0].clientX, clientY: event.touches[0].clientY } );
+
+        } else {
+
+            this.onTap( event );
+
+        }
 
     },
 
@@ -2077,8 +2095,8 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
             const setIndicatorD = function () {
 
                 scope.radius = scope.viewIndicatorSize * 0.225;
-                scope.currentPanoAngle = scope.camera.rotation.y - THREE.Math.degToRad( 90 );
-                scope.fovAngle = THREE.Math.degToRad( scope.camera.fov ) ;
+                scope.currentPanoAngle = scope.camera.rotation.y - THREE.MathUtils.degToRad( 90 );
+                scope.fovAngle = THREE.MathUtils.degToRad( scope.camera.fov ) ;
                 scope.leftAngle = -scope.currentPanoAngle - scope.fovAngle / 2;
                 scope.rightAngle = -scope.currentPanoAngle + scope.fovAngle / 2;
                 scope.leftX = scope.radius * Math.cos( scope.leftAngle );

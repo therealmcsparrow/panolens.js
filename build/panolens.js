@@ -1,10 +1,29 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('three')) :
 	typeof define === 'function' && define.amd ? define(['exports', 'three'], factory) :
-	(global = global || self, factory(global.PANOLENS = {}, global.THREE));
-}(this, function (exports, THREE) { 'use strict';
+	(global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.PANOLENS = {}, global.THREE));
+})(this, (function (exports, THREE) { 'use strict';
 
-	const version="0.12.1";const dependencies={three:"^0.105.2"};
+	function _interopNamespaceDefault(e) {
+		var n = Object.create(null);
+		if (e) {
+			Object.keys(e).forEach(function (k) {
+				if (k !== 'default') {
+					var d = Object.getOwnPropertyDescriptor(e, k);
+					Object.defineProperty(n, k, d.get ? d : {
+						enumerable: true,
+						get: function () { return e[k]; }
+					});
+				}
+			});
+		}
+		n.default = e;
+		return Object.freeze(n);
+	}
+
+	var THREE__namespace = /*#__PURE__*/_interopNamespaceDefault(THREE);
+
+	const version="0.12.1";const dependencies={three:"^0.125.0"};
 
 	/**
 	 * REVISION
@@ -59,6 +78,26 @@
 	const MODES = { UNKNOWN: 0, NORMAL: 1, CARDBOARD: 2, STEREO: 3 };
 
 	/**
+	 * CONTROL_BUTTONS
+	 * @module CONTROL_BUTTONS
+	 * @example PANOLENS.VIEWER.CONTROL_BUTTONS
+	 * @property {string} FULLSCREEN
+	 * @property {string} SETTING
+	 * @property {string} VIDEO
+	 */
+	const CONTROL_BUTTONS = { FULLSCREEN: 'fullscreen', SETTING: 'setting', VIDEO: 'video' };
+
+	/**
+	 * OUTPUTS
+	 * @module OUTPUTS
+	 * @example PANOLENS.VIEWER.OUTPUTS
+	 * @property {string} NONE
+	 * @property {string} CONSOLE
+	 * @property {string} OVERLAY
+	 */
+	const OUTPUTS = { NONE: 'none', CONSOLE: 'console', OVERLAY: 'overlay' };
+
+	/**
 	 * Data URI Images
 	 * @module DataImage
 	 * @example PANOLENS.DataImage.Info
@@ -106,7 +145,7 @@
 	    load: function ( url, onLoad = () => {}, onProgress = () => {}, onError = () => {} ) {
 
 	        // Enable cache
-	        THREE.Cache.enabled = true;
+	        THREE__namespace.Cache.enabled = true;
 
 	        let cached, request, arrayBufferView, blob, urlCreator, image, reference;
 
@@ -122,18 +161,27 @@
 	        }
 
 	        // Cached
-	        cached = THREE.Cache.get(reference ? reference : url);
+	        cached = THREE__namespace.Cache.get(reference ? reference : url);
 
 	        if (cached !== undefined) {
 
 	            if (onLoad) {
 
-	                setTimeout(function () {
+	                if ( cached.complete && cached.src ) {
+	                    setTimeout( function () {
 
-	                    onProgress({loaded: 1, total: 1});
-	                    onLoad(cached);
+	                        onProgress( { loaded: 1, total: 1 } );
+	                        onLoad( cached );
 
-	                }, 0);
+	                    }, 0 );
+	                } else {
+	                    cached.addEventListener( 'load', function () {
+
+	                        onProgress( { loaded: 1, total: 1 } );
+	                        onLoad( cached );
+
+	                    }, false );
+	                }
 
 	            }
 
@@ -146,7 +194,7 @@
 	        image = document.createElementNS('http://www.w3.org/1999/xhtml', 'img');
 
 	        // Add to cache
-	        THREE.Cache.add(reference ? reference : url, image);
+	        THREE__namespace.Cache.add(reference ? reference : url, image);
 
 	        const onImageLoaded = () => {
 
@@ -166,7 +214,8 @@
 
 	        request = new window.XMLHttpRequest();
 	        request.open('GET', url, true);
-	        if (process.env.npm_lifecycle_event !== 'test') {
+	        if (typeof process === 'undefined' || process.env.npm_lifecycle_event !== 'test') {
+	            /* istanbul ignore next */
 	            request.onreadystatechange = function () {
 	                if (this.readyState === 4 && this.status >= 400) {
 	                    onError();
@@ -226,7 +275,7 @@
 	     */
 	    load: function ( url, onLoad = () => {}, onProgress, onError ) {
 
-	        var texture = new THREE.Texture(); 
+	        var texture = new THREE__namespace.Texture(); 
 
 	        ImageLoader.load( url, function ( image ) {
 
@@ -235,7 +284,7 @@
 	            // JPEGs can't have an alpha channel, so memory can be saved by storing them as RGB.
 	            const isJPEG = url.search( /\.(jpg|jpeg)$/ ) > 0 || url.search( /^data\:image\/jpeg/ ) === 0;
 
-	            texture.format = isJPEG ? THREE.RGBFormat : THREE.RGBAFormat;
+	            texture.format = isJPEG ? THREE__namespace.RGBFormat : THREE__namespace.RGBAFormat;
 	            texture.needsUpdate = true;
 
 	            onLoad( texture );
@@ -268,7 +317,7 @@
 
 		   var texture, loaded, progress, all, loadings;
 
-		   texture = new THREE.CubeTexture( [] );
+		   texture = new THREE__namespace.CubeTexture( [] );
 
 		   loaded = 0;
 		   progress = {};
@@ -344,7 +393,7 @@
 	    this.videoDeviceIndex = 0;
 
 	}
-	Media.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype ), {
+	Media.prototype = Object.assign( Object.create( THREE__namespace.EventDispatcher.prototype ), {
 
 	    setContainer: function ( container ) {
 
@@ -588,12 +637,12 @@
 	    createVideoTexture: function () {
 
 	        const video = this.element;
-	        const texture = new THREE.VideoTexture( video );
+	        const texture = new THREE__namespace.VideoTexture( video );
 
 	        texture.generateMipmaps = false;
-	        texture.minFilter = THREE.LinearFilter;
-	        texture.magFilter = THREE.LinearFilter;
-	        texture.format = THREE.RGBFormat;
+	        texture.minFilter = THREE__namespace.LinearFilter;
+	        texture.magFilter = THREE__namespace.LinearFilter;
+	        texture.format = THREE__namespace.RGBFormat;
 	        texture.center.set( 0.5, 0.5 );
 
 	        video.addEventListener( 'canplay', this.onWindowResize.bind( this ) );
@@ -682,14 +731,14 @@
 	    this.dpr = window.devicePixelRatio;
 
 	    const { canvas, context } = this.createCanvas();
-	    const material = new THREE.SpriteMaterial( { color, map: this.createCanvasTexture( canvas ) } );
+	    const material = new THREE__namespace.SpriteMaterial( { color, map: this.createCanvasTexture( canvas ) } );
 
-	    THREE.Sprite.call( this, material );
+	    THREE__namespace.Sprite.call( this, material );
 
 	    this.canvasWidth = canvas.width;
 	    this.canvasHeight = canvas.height;
 	    this.context = context;
-	    this.color = color instanceof THREE.Color ? color : new THREE.Color( color );    
+	    this.color = color instanceof THREE__namespace.Color ? color : new THREE__namespace.Color( color );    
 
 	    this.autoSelect = autoSelect;
 	    this.dwellTime = dwellTime;
@@ -707,7 +756,7 @@
 	    this.updateCanvasArcByProgress( 0 );
 
 	}
-	Reticle.prototype = Object.assign( Object.create( THREE.Sprite.prototype ), {
+	Reticle.prototype = Object.assign( Object.create( THREE__namespace.Sprite.prototype ), {
 
 	    constructor: Reticle,
 
@@ -719,7 +768,7 @@
 	     */
 	    setColor: function ( color ) {
 
-	        this.material.color.copy( color instanceof THREE.Color ? color : new THREE.Color( color ) );
+	        this.material.color.copy( color instanceof THREE__namespace.Color ? color : new THREE__namespace.Color( color ) );
 
 	    },
 
@@ -732,9 +781,9 @@
 	     */
 	    createCanvasTexture: function ( canvas ) {
 
-	        const texture = new THREE.CanvasTexture( canvas );
-	        texture.minFilter = THREE.LinearFilter;
-	        texture.magFilter = THREE.LinearFilter;
+	        const texture = new THREE__namespace.CanvasTexture( canvas );
+	        texture.minFilter = THREE__namespace.LinearFilter;
+	        texture.magFilter = THREE__namespace.LinearFilter;
 	        texture.generateMipmaps = false;
 
 	        return texture;
@@ -978,11 +1027,12 @@
 
 	} );
 
-	function createCommonjsModule(fn, module) {
-		return module = { exports: {} }, fn(module, module.exports), module.exports;
+	function getDefaultExportFromCjs (x) {
+		return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 	}
 
-	var Tween = createCommonjsModule(function (module, exports) {
+	var Tween = {exports: {}};
+
 	/**
 	 * Tween.js - Licensed under the MIT license
 	 * https://github.com/tweenjs/tween.js
@@ -992,920 +1042,930 @@
 	 * Thank you all, you're awesome!
 	 */
 
+	var hasRequiredTween;
 
-	var _Group = function () {
-		this._tweens = {};
-		this._tweensAddedDuringUpdate = {};
-	};
-
-	_Group.prototype = {
-		getAll: function () {
-
-			return Object.keys(this._tweens).map(function (tweenId) {
-				return this._tweens[tweenId];
-			}.bind(this));
-
-		},
-
-		removeAll: function () {
-
-			this._tweens = {};
-
-		},
-
-		add: function (tween) {
-
-			this._tweens[tween.getId()] = tween;
-			this._tweensAddedDuringUpdate[tween.getId()] = tween;
-
-		},
-
-		remove: function (tween) {
-
-			delete this._tweens[tween.getId()];
-			delete this._tweensAddedDuringUpdate[tween.getId()];
-
-		},
-
-		update: function (time, preserve) {
-
-			var tweenIds = Object.keys(this._tweens);
-
-			if (tweenIds.length === 0) {
-				return false;
-			}
-
-			time = time !== undefined ? time : TWEEN.now();
-
-			// Tweens are updated in "batches". If you add a new tween during an update, then the
-			// new tween will be updated in the next batch.
-			// If you remove a tween during an update, it may or may not be updated. However,
-			// if the removed tween was added during the current batch, then it will not be updated.
-			while (tweenIds.length > 0) {
+	function requireTween () {
+		if (hasRequiredTween) return Tween.exports;
+		hasRequiredTween = 1;
+		(function (module, exports$1) {
+			var _Group = function () {
+				this._tweens = {};
 				this._tweensAddedDuringUpdate = {};
+			};
 
-				for (var i = 0; i < tweenIds.length; i++) {
+			_Group.prototype = {
+				getAll: function () {
 
-					var tween = this._tweens[tweenIds[i]];
+					return Object.keys(this._tweens).map(function (tweenId) {
+						return this._tweens[tweenId];
+					}.bind(this));
 
-					if (tween && tween.update(time) === false) {
-						tween._isPlaying = false;
+				},
 
-						if (!preserve) {
-							delete this._tweens[tweenIds[i]];
-						}
-					}
-				}
+				removeAll: function () {
 
-				tweenIds = Object.keys(this._tweensAddedDuringUpdate);
-			}
+					this._tweens = {};
 
-			return true;
+				},
 
-		}
-	};
+				add: function (tween) {
 
-	var TWEEN = new _Group();
+					this._tweens[tween.getId()] = tween;
+					this._tweensAddedDuringUpdate[tween.getId()] = tween;
 
-	TWEEN.Group = _Group;
-	TWEEN._nextId = 0;
-	TWEEN.nextId = function () {
-		return TWEEN._nextId++;
-	};
+				},
 
+				remove: function (tween) {
 
-	// Include a performance.now polyfill.
-	// In node.js, use process.hrtime.
-	if (typeof (self) === 'undefined' && typeof (process) !== 'undefined' && process.hrtime) {
-		TWEEN.now = function () {
-			var time = process.hrtime();
+					delete this._tweens[tween.getId()];
+					delete this._tweensAddedDuringUpdate[tween.getId()];
 
-			// Convert [seconds, nanoseconds] to milliseconds.
-			return time[0] * 1000 + time[1] / 1000000;
-		};
-	}
-	// In a browser, use self.performance.now if it is available.
-	else if (typeof (self) !== 'undefined' &&
-	         self.performance !== undefined &&
-			 self.performance.now !== undefined) {
-		// This must be bound, because directly assigning this function
-		// leads to an invocation exception in Chrome.
-		TWEEN.now = self.performance.now.bind(self.performance);
-	}
-	// Use Date.now if it is available.
-	else if (Date.now !== undefined) {
-		TWEEN.now = Date.now;
-	}
-	// Otherwise, use 'new Date().getTime()'.
-	else {
-		TWEEN.now = function () {
-			return new Date().getTime();
-		};
-	}
+				},
 
+				update: function (time, preserve) {
 
-	TWEEN.Tween = function (object, group) {
-		this._object = object;
-		this._valuesStart = {};
-		this._valuesEnd = {};
-		this._valuesStartRepeat = {};
-		this._duration = 1000;
-		this._repeat = 0;
-		this._repeatDelayTime = undefined;
-		this._yoyo = false;
-		this._isPlaying = false;
-		this._reversed = false;
-		this._delayTime = 0;
-		this._startTime = null;
-		this._easingFunction = TWEEN.Easing.Linear.None;
-		this._interpolationFunction = TWEEN.Interpolation.Linear;
-		this._chainedTweens = [];
-		this._onStartCallback = null;
-		this._onStartCallbackFired = false;
-		this._onUpdateCallback = null;
-		this._onRepeatCallback = null;
-		this._onCompleteCallback = null;
-		this._onStopCallback = null;
-		this._group = group || TWEEN;
-		this._id = TWEEN.nextId();
+					var tweenIds = Object.keys(this._tweens);
 
-	};
-
-	TWEEN.Tween.prototype = {
-		getId: function () {
-			return this._id;
-		},
-
-		isPlaying: function () {
-			return this._isPlaying;
-		},
-
-		to: function (properties, duration) {
-
-			this._valuesEnd = Object.create(properties);
-
-			if (duration !== undefined) {
-				this._duration = duration;
-			}
-
-			return this;
-
-		},
-
-		duration: function duration(d) {
-			this._duration = d;
-			return this;
-		},
-
-		start: function (time) {
-
-			this._group.add(this);
-
-			this._isPlaying = true;
-
-			this._onStartCallbackFired = false;
-
-			this._startTime = time !== undefined ? typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time : TWEEN.now();
-			this._startTime += this._delayTime;
-
-			for (var property in this._valuesEnd) {
-
-				// Check if an Array was provided as property value
-				if (this._valuesEnd[property] instanceof Array) {
-
-					if (this._valuesEnd[property].length === 0) {
-						continue;
+					if (tweenIds.length === 0) {
+						return false;
 					}
 
-					// Create a local copy of the Array with the start value at the front
-					this._valuesEnd[property] = [this._object[property]].concat(this._valuesEnd[property]);
+					time = time !== undefined ? time : TWEEN.now();
 
-				}
+					// Tweens are updated in "batches". If you add a new tween during an update, then the
+					// new tween will be updated in the next batch.
+					// If you remove a tween during an update, it may or may not be updated. However,
+					// if the removed tween was added during the current batch, then it will not be updated.
+					while (tweenIds.length > 0) {
+						this._tweensAddedDuringUpdate = {};
 
-				// If `to()` specifies a property that doesn't exist in the source object,
-				// we should not set that property in the object
-				if (this._object[property] === undefined) {
-					continue;
-				}
+						for (var i = 0; i < tweenIds.length; i++) {
 
-				// Save the starting value.
-				this._valuesStart[property] = this._object[property];
+							var tween = this._tweens[tweenIds[i]];
 
-				if ((this._valuesStart[property] instanceof Array) === false) {
-					this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
-				}
+							if (tween && tween.update(time) === false) {
+								tween._isPlaying = false;
 
-				this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
-
-			}
-
-			return this;
-
-		},
-
-		stop: function () {
-
-			if (!this._isPlaying) {
-				return this;
-			}
-
-			this._group.remove(this);
-			this._isPlaying = false;
-
-			if (this._onStopCallback !== null) {
-				this._onStopCallback(this._object);
-			}
-
-			this.stopChainedTweens();
-			return this;
-
-		},
-
-		end: function () {
-
-			this.update(Infinity);
-			return this;
-
-		},
-
-		stopChainedTweens: function () {
-
-			for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
-				this._chainedTweens[i].stop();
-			}
-
-		},
-
-		group: function (group) {
-			this._group = group;
-			return this;
-		},
-
-		delay: function (amount) {
-
-			this._delayTime = amount;
-			return this;
-
-		},
-
-		repeat: function (times) {
-
-			this._repeat = times;
-			return this;
-
-		},
-
-		repeatDelay: function (amount) {
-
-			this._repeatDelayTime = amount;
-			return this;
-
-		},
-
-		yoyo: function (yoyo) {
-
-			this._yoyo = yoyo;
-			return this;
-
-		},
-
-		easing: function (easingFunction) {
-
-			this._easingFunction = easingFunction;
-			return this;
-
-		},
-
-		interpolation: function (interpolationFunction) {
-
-			this._interpolationFunction = interpolationFunction;
-			return this;
-
-		},
-
-		chain: function () {
-
-			this._chainedTweens = arguments;
-			return this;
-
-		},
-
-		onStart: function (callback) {
-
-			this._onStartCallback = callback;
-			return this;
-
-		},
-
-		onUpdate: function (callback) {
-
-			this._onUpdateCallback = callback;
-			return this;
-
-		},
-
-		onRepeat: function onRepeat(callback) {
-
-			this._onRepeatCallback = callback;
-			return this;
-
-		},
-
-		onComplete: function (callback) {
-
-			this._onCompleteCallback = callback;
-			return this;
-
-		},
-
-		onStop: function (callback) {
-
-			this._onStopCallback = callback;
-			return this;
-
-		},
-
-		update: function (time) {
-
-			var property;
-			var elapsed;
-			var value;
-
-			if (time < this._startTime) {
-				return true;
-			}
-
-			if (this._onStartCallbackFired === false) {
-
-				if (this._onStartCallback !== null) {
-					this._onStartCallback(this._object);
-				}
-
-				this._onStartCallbackFired = true;
-			}
-
-			elapsed = (time - this._startTime) / this._duration;
-			elapsed = (this._duration === 0 || elapsed > 1) ? 1 : elapsed;
-
-			value = this._easingFunction(elapsed);
-
-			for (property in this._valuesEnd) {
-
-				// Don't update properties that do not exist in the source object
-				if (this._valuesStart[property] === undefined) {
-					continue;
-				}
-
-				var start = this._valuesStart[property] || 0;
-				var end = this._valuesEnd[property];
-
-				if (end instanceof Array) {
-
-					this._object[property] = this._interpolationFunction(end, value);
-
-				} else {
-
-					// Parses relative end values with start as base (e.g.: +10, -3)
-					if (typeof (end) === 'string') {
-
-						if (end.charAt(0) === '+' || end.charAt(0) === '-') {
-							end = start + parseFloat(end);
-						} else {
-							end = parseFloat(end);
-						}
-					}
-
-					// Protect against non numeric properties.
-					if (typeof (end) === 'number') {
-						this._object[property] = start + (end - start) * value;
-					}
-
-				}
-
-			}
-
-			if (this._onUpdateCallback !== null) {
-				this._onUpdateCallback(this._object, elapsed);
-			}
-
-			if (elapsed === 1) {
-
-				if (this._repeat > 0) {
-
-					if (isFinite(this._repeat)) {
-						this._repeat--;
-					}
-
-					// Reassign starting values, restart by making startTime = now
-					for (property in this._valuesStartRepeat) {
-
-						if (typeof (this._valuesEnd[property]) === 'string') {
-							this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+								if (!preserve) {
+									delete this._tweens[tweenIds[i]];
+								}
+							}
 						}
 
-						if (this._yoyo) {
-							var tmp = this._valuesStartRepeat[property];
-
-							this._valuesStartRepeat[property] = this._valuesEnd[property];
-							this._valuesEnd[property] = tmp;
-						}
-
-						this._valuesStart[property] = this._valuesStartRepeat[property];
-
-					}
-
-					if (this._yoyo) {
-						this._reversed = !this._reversed;
-					}
-
-					if (this._repeatDelayTime !== undefined) {
-						this._startTime = time + this._repeatDelayTime;
-					} else {
-						this._startTime = time + this._delayTime;
-					}
-
-					if (this._onRepeatCallback !== null) {
-						this._onRepeatCallback(this._object);
+						tweenIds = Object.keys(this._tweensAddedDuringUpdate);
 					}
 
 					return true;
 
-				} else {
+				}
+			};
 
-					if (this._onCompleteCallback !== null) {
+			var TWEEN = new _Group();
 
-						this._onCompleteCallback(this._object);
+			TWEEN.Group = _Group;
+			TWEEN._nextId = 0;
+			TWEEN.nextId = function () {
+				return TWEEN._nextId++;
+			};
+
+
+			// Include a performance.now polyfill.
+			// In node.js, use process.hrtime.
+			if (typeof (self) === 'undefined' && typeof (process) !== 'undefined' && process.hrtime) {
+				TWEEN.now = function () {
+					var time = process.hrtime();
+
+					// Convert [seconds, nanoseconds] to milliseconds.
+					return time[0] * 1000 + time[1] / 1000000;
+				};
+			}
+			// In a browser, use self.performance.now if it is available.
+			else if (typeof (self) !== 'undefined' &&
+			         self.performance !== undefined &&
+					 self.performance.now !== undefined) {
+				// This must be bound, because directly assigning this function
+				// leads to an invocation exception in Chrome.
+				TWEEN.now = self.performance.now.bind(self.performance);
+			}
+			// Use Date.now if it is available.
+			else if (Date.now !== undefined) {
+				TWEEN.now = Date.now;
+			}
+			// Otherwise, use 'new Date().getTime()'.
+			else {
+				TWEEN.now = function () {
+					return new Date().getTime();
+				};
+			}
+
+
+			TWEEN.Tween = function (object, group) {
+				this._object = object;
+				this._valuesStart = {};
+				this._valuesEnd = {};
+				this._valuesStartRepeat = {};
+				this._duration = 1000;
+				this._repeat = 0;
+				this._repeatDelayTime = undefined;
+				this._yoyo = false;
+				this._isPlaying = false;
+				this._reversed = false;
+				this._delayTime = 0;
+				this._startTime = null;
+				this._easingFunction = TWEEN.Easing.Linear.None;
+				this._interpolationFunction = TWEEN.Interpolation.Linear;
+				this._chainedTweens = [];
+				this._onStartCallback = null;
+				this._onStartCallbackFired = false;
+				this._onUpdateCallback = null;
+				this._onRepeatCallback = null;
+				this._onCompleteCallback = null;
+				this._onStopCallback = null;
+				this._group = group || TWEEN;
+				this._id = TWEEN.nextId();
+
+			};
+
+			TWEEN.Tween.prototype = {
+				getId: function () {
+					return this._id;
+				},
+
+				isPlaying: function () {
+					return this._isPlaying;
+				},
+
+				to: function (properties, duration) {
+
+					this._valuesEnd = properties;
+
+					if (duration !== undefined) {
+						this._duration = duration;
 					}
+
+					return this;
+
+				},
+
+				duration: function duration(d) {
+					this._duration = d;
+					return this;
+				},
+
+				start: function (time) {
+
+					this._group.add(this);
+
+					this._isPlaying = true;
+
+					this._onStartCallbackFired = false;
+
+					this._startTime = time !== undefined ? typeof time === 'string' ? TWEEN.now() + parseFloat(time) : time : TWEEN.now();
+					this._startTime += this._delayTime;
+
+					for (var property in this._valuesEnd) {
+
+						// Check if an Array was provided as property value
+						if (this._valuesEnd[property] instanceof Array) {
+
+							if (this._valuesEnd[property].length === 0) {
+								continue;
+							}
+
+							// Create a local copy of the Array with the start value at the front
+							this._valuesEnd[property] = [this._object[property]].concat(this._valuesEnd[property]);
+
+						}
+
+						// If `to()` specifies a property that doesn't exist in the source object,
+						// we should not set that property in the object
+						if (this._object[property] === undefined) {
+							continue;
+						}
+
+						// Save the starting value.
+						this._valuesStart[property] = this._object[property];
+
+						if ((this._valuesStart[property] instanceof Array) === false) {
+							this._valuesStart[property] *= 1.0; // Ensures we're using numbers, not strings
+						}
+
+						this._valuesStartRepeat[property] = this._valuesStart[property] || 0;
+
+					}
+
+					return this;
+
+				},
+
+				stop: function () {
+
+					if (!this._isPlaying) {
+						return this;
+					}
+
+					this._group.remove(this);
+					this._isPlaying = false;
+
+					if (this._onStopCallback !== null) {
+						this._onStopCallback(this._object);
+					}
+
+					this.stopChainedTweens();
+					return this;
+
+				},
+
+				end: function () {
+
+					this.update(Infinity);
+					return this;
+
+				},
+
+				stopChainedTweens: function () {
 
 					for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
-						// Make the chained tweens start exactly at the time they should,
-						// even if the `update()` method was called way past the duration of the tween
-						this._chainedTweens[i].start(this._startTime + this._duration);
+						this._chainedTweens[i].stop();
 					}
 
-					return false;
+				},
 
-				}
+				group: function (group) {
+					this._group = group;
+					return this;
+				},
 
-			}
+				delay: function (amount) {
 
-			return true;
+					this._delayTime = amount;
+					return this;
 
-		}
-	};
+				},
 
+				repeat: function (times) {
 
-	TWEEN.Easing = {
+					this._repeat = times;
+					return this;
 
-		Linear: {
+				},
 
-			None: function (k) {
+				repeatDelay: function (amount) {
 
-				return k;
+					this._repeatDelayTime = amount;
+					return this;
 
-			}
+				},
 
-		},
+				yoyo: function (yoyo) {
 
-		Quadratic: {
+					this._yoyo = yoyo;
+					return this;
 
-			In: function (k) {
+				},
 
-				return k * k;
+				easing: function (easingFunction) {
 
-			},
+					this._easingFunction = easingFunction;
+					return this;
 
-			Out: function (k) {
+				},
 
-				return k * (2 - k);
+				interpolation: function (interpolationFunction) {
 
-			},
+					this._interpolationFunction = interpolationFunction;
+					return this;
 
-			InOut: function (k) {
+				},
 
-				if ((k *= 2) < 1) {
-					return 0.5 * k * k;
-				}
+				chain: function () {
 
-				return - 0.5 * (--k * (k - 2) - 1);
+					this._chainedTweens = arguments;
+					return this;
 
-			}
+				},
 
-		},
+				onStart: function (callback) {
 
-		Cubic: {
+					this._onStartCallback = callback;
+					return this;
 
-			In: function (k) {
+				},
 
-				return k * k * k;
+				onUpdate: function (callback) {
 
-			},
+					this._onUpdateCallback = callback;
+					return this;
 
-			Out: function (k) {
+				},
 
-				return --k * k * k + 1;
+				onRepeat: function onRepeat(callback) {
 
-			},
+					this._onRepeatCallback = callback;
+					return this;
 
-			InOut: function (k) {
+				},
 
-				if ((k *= 2) < 1) {
-					return 0.5 * k * k * k;
-				}
+				onComplete: function (callback) {
 
-				return 0.5 * ((k -= 2) * k * k + 2);
+					this._onCompleteCallback = callback;
+					return this;
 
-			}
+				},
 
-		},
+				onStop: function (callback) {
 
-		Quartic: {
+					this._onStopCallback = callback;
+					return this;
 
-			In: function (k) {
+				},
 
-				return k * k * k * k;
+				update: function (time) {
 
-			},
+					var property;
+					var elapsed;
+					var value;
 
-			Out: function (k) {
-
-				return 1 - (--k * k * k * k);
-
-			},
-
-			InOut: function (k) {
-
-				if ((k *= 2) < 1) {
-					return 0.5 * k * k * k * k;
-				}
-
-				return - 0.5 * ((k -= 2) * k * k * k - 2);
-
-			}
-
-		},
-
-		Quintic: {
-
-			In: function (k) {
-
-				return k * k * k * k * k;
-
-			},
-
-			Out: function (k) {
-
-				return --k * k * k * k * k + 1;
-
-			},
-
-			InOut: function (k) {
-
-				if ((k *= 2) < 1) {
-					return 0.5 * k * k * k * k * k;
-				}
-
-				return 0.5 * ((k -= 2) * k * k * k * k + 2);
-
-			}
-
-		},
-
-		Sinusoidal: {
-
-			In: function (k) {
-
-				return 1 - Math.cos(k * Math.PI / 2);
-
-			},
-
-			Out: function (k) {
-
-				return Math.sin(k * Math.PI / 2);
-
-			},
-
-			InOut: function (k) {
-
-				return 0.5 * (1 - Math.cos(Math.PI * k));
-
-			}
-
-		},
-
-		Exponential: {
-
-			In: function (k) {
-
-				return k === 0 ? 0 : Math.pow(1024, k - 1);
-
-			},
-
-			Out: function (k) {
-
-				return k === 1 ? 1 : 1 - Math.pow(2, - 10 * k);
-
-			},
-
-			InOut: function (k) {
-
-				if (k === 0) {
-					return 0;
-				}
-
-				if (k === 1) {
-					return 1;
-				}
-
-				if ((k *= 2) < 1) {
-					return 0.5 * Math.pow(1024, k - 1);
-				}
-
-				return 0.5 * (- Math.pow(2, - 10 * (k - 1)) + 2);
-
-			}
-
-		},
-
-		Circular: {
-
-			In: function (k) {
-
-				return 1 - Math.sqrt(1 - k * k);
-
-			},
-
-			Out: function (k) {
-
-				return Math.sqrt(1 - (--k * k));
-
-			},
-
-			InOut: function (k) {
-
-				if ((k *= 2) < 1) {
-					return - 0.5 * (Math.sqrt(1 - k * k) - 1);
-				}
-
-				return 0.5 * (Math.sqrt(1 - (k -= 2) * k) + 1);
-
-			}
-
-		},
-
-		Elastic: {
-
-			In: function (k) {
-
-				if (k === 0) {
-					return 0;
-				}
-
-				if (k === 1) {
-					return 1;
-				}
-
-				return -Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
-
-			},
-
-			Out: function (k) {
-
-				if (k === 0) {
-					return 0;
-				}
-
-				if (k === 1) {
-					return 1;
-				}
-
-				return Math.pow(2, -10 * k) * Math.sin((k - 0.1) * 5 * Math.PI) + 1;
-
-			},
-
-			InOut: function (k) {
-
-				if (k === 0) {
-					return 0;
-				}
-
-				if (k === 1) {
-					return 1;
-				}
-
-				k *= 2;
-
-				if (k < 1) {
-					return -0.5 * Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
-				}
-
-				return 0.5 * Math.pow(2, -10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI) + 1;
-
-			}
-
-		},
-
-		Back: {
-
-			In: function (k) {
-
-				var s = 1.70158;
-
-				return k * k * ((s + 1) * k - s);
-
-			},
-
-			Out: function (k) {
-
-				var s = 1.70158;
-
-				return --k * k * ((s + 1) * k + s) + 1;
-
-			},
-
-			InOut: function (k) {
-
-				var s = 1.70158 * 1.525;
-
-				if ((k *= 2) < 1) {
-					return 0.5 * (k * k * ((s + 1) * k - s));
-				}
-
-				return 0.5 * ((k -= 2) * k * ((s + 1) * k + s) + 2);
-
-			}
-
-		},
-
-		Bounce: {
-
-			In: function (k) {
-
-				return 1 - TWEEN.Easing.Bounce.Out(1 - k);
-
-			},
-
-			Out: function (k) {
-
-				if (k < (1 / 2.75)) {
-					return 7.5625 * k * k;
-				} else if (k < (2 / 2.75)) {
-					return 7.5625 * (k -= (1.5 / 2.75)) * k + 0.75;
-				} else if (k < (2.5 / 2.75)) {
-					return 7.5625 * (k -= (2.25 / 2.75)) * k + 0.9375;
-				} else {
-					return 7.5625 * (k -= (2.625 / 2.75)) * k + 0.984375;
-				}
-
-			},
-
-			InOut: function (k) {
-
-				if (k < 0.5) {
-					return TWEEN.Easing.Bounce.In(k * 2) * 0.5;
-				}
-
-				return TWEEN.Easing.Bounce.Out(k * 2 - 1) * 0.5 + 0.5;
-
-			}
-
-		}
-
-	};
-
-	TWEEN.Interpolation = {
-
-		Linear: function (v, k) {
-
-			var m = v.length - 1;
-			var f = m * k;
-			var i = Math.floor(f);
-			var fn = TWEEN.Interpolation.Utils.Linear;
-
-			if (k < 0) {
-				return fn(v[0], v[1], f);
-			}
-
-			if (k > 1) {
-				return fn(v[m], v[m - 1], m - f);
-			}
-
-			return fn(v[i], v[i + 1 > m ? m : i + 1], f - i);
-
-		},
-
-		Bezier: function (v, k) {
-
-			var b = 0;
-			var n = v.length - 1;
-			var pw = Math.pow;
-			var bn = TWEEN.Interpolation.Utils.Bernstein;
-
-			for (var i = 0; i <= n; i++) {
-				b += pw(1 - k, n - i) * pw(k, i) * v[i] * bn(n, i);
-			}
-
-			return b;
-
-		},
-
-		CatmullRom: function (v, k) {
-
-			var m = v.length - 1;
-			var f = m * k;
-			var i = Math.floor(f);
-			var fn = TWEEN.Interpolation.Utils.CatmullRom;
-
-			if (v[0] === v[m]) {
-
-				if (k < 0) {
-					i = Math.floor(f = m * (1 + k));
-				}
-
-				return fn(v[(i - 1 + m) % m], v[i], v[(i + 1) % m], v[(i + 2) % m], f - i);
-
-			} else {
-
-				if (k < 0) {
-					return v[0] - (fn(v[0], v[0], v[1], v[1], -f) - v[0]);
-				}
-
-				if (k > 1) {
-					return v[m] - (fn(v[m], v[m], v[m - 1], v[m - 1], f - m) - v[m]);
-				}
-
-				return fn(v[i ? i - 1 : 0], v[i], v[m < i + 1 ? m : i + 1], v[m < i + 2 ? m : i + 2], f - i);
-
-			}
-
-		},
-
-		Utils: {
-
-			Linear: function (p0, p1, t) {
-
-				return (p1 - p0) * t + p0;
-
-			},
-
-			Bernstein: function (n, i) {
-
-				var fc = TWEEN.Interpolation.Utils.Factorial;
-
-				return fc(n) / fc(i) / fc(n - i);
-
-			},
-
-			Factorial: (function () {
-
-				var a = [1];
-
-				return function (n) {
-
-					var s = 1;
-
-					if (a[n]) {
-						return a[n];
+					if (time < this._startTime) {
+						return true;
 					}
 
-					for (var i = n; i > 1; i--) {
-						s *= i;
+					if (this._onStartCallbackFired === false) {
+
+						if (this._onStartCallback !== null) {
+							this._onStartCallback(this._object);
+						}
+
+						this._onStartCallbackFired = true;
 					}
 
-					a[n] = s;
-					return s;
+					elapsed = (time - this._startTime) / this._duration;
+					elapsed = (this._duration === 0 || elapsed > 1) ? 1 : elapsed;
 
-				};
+					value = this._easingFunction(elapsed);
 
-			})(),
+					for (property in this._valuesEnd) {
 
-			CatmullRom: function (p0, p1, p2, p3, t) {
+						// Don't update properties that do not exist in the source object
+						if (this._valuesStart[property] === undefined) {
+							continue;
+						}
 
-				var v0 = (p2 - p0) * 0.5;
-				var v1 = (p3 - p1) * 0.5;
-				var t2 = t * t;
-				var t3 = t * t2;
+						var start = this._valuesStart[property] || 0;
+						var end = this._valuesEnd[property];
 
-				return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (- 3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+						if (end instanceof Array) {
 
-			}
+							this._object[property] = this._interpolationFunction(end, value);
 
-		}
+						} else {
 
-	};
+							// Parses relative end values with start as base (e.g.: +10, -3)
+							if (typeof (end) === 'string') {
 
-	// UMD (Universal Module Definition)
-	(function (root) {
+								if (end.charAt(0) === '+' || end.charAt(0) === '-') {
+									end = start + parseFloat(end);
+								} else {
+									end = parseFloat(end);
+								}
+							}
 
-		{
+							// Protect against non numeric properties.
+							if (typeof (end) === 'number') {
+								this._object[property] = start + (end - start) * value;
+							}
 
-			// Node.js
-			module.exports = TWEEN;
+						}
 
-		}
+					}
 
-	})();
-	});
+					if (this._onUpdateCallback !== null) {
+						this._onUpdateCallback(this._object, elapsed);
+					}
+
+					if (elapsed === 1) {
+
+						if (this._repeat > 0) {
+
+							if (isFinite(this._repeat)) {
+								this._repeat--;
+							}
+
+							// Reassign starting values, restart by making startTime = now
+							for (property in this._valuesStartRepeat) {
+
+								if (typeof (this._valuesEnd[property]) === 'string') {
+									this._valuesStartRepeat[property] = this._valuesStartRepeat[property] + parseFloat(this._valuesEnd[property]);
+								}
+
+								if (this._yoyo) {
+									var tmp = this._valuesStartRepeat[property];
+
+									this._valuesStartRepeat[property] = this._valuesEnd[property];
+									this._valuesEnd[property] = tmp;
+								}
+
+								this._valuesStart[property] = this._valuesStartRepeat[property];
+
+							}
+
+							if (this._yoyo) {
+								this._reversed = !this._reversed;
+							}
+
+							if (this._repeatDelayTime !== undefined) {
+								this._startTime = time + this._repeatDelayTime;
+							} else {
+								this._startTime = time + this._delayTime;
+							}
+
+							if (this._onRepeatCallback !== null) {
+								this._onRepeatCallback(this._object);
+							}
+
+							return true;
+
+						} else {
+
+							if (this._onCompleteCallback !== null) {
+
+								this._onCompleteCallback(this._object);
+							}
+
+							for (var i = 0, numChainedTweens = this._chainedTweens.length; i < numChainedTweens; i++) {
+								// Make the chained tweens start exactly at the time they should,
+								// even if the `update()` method was called way past the duration of the tween
+								this._chainedTweens[i].start(this._startTime + this._duration);
+							}
+
+							return false;
+
+						}
+
+					}
+
+					return true;
+
+				}
+			};
+
+
+			TWEEN.Easing = {
+
+				Linear: {
+
+					None: function (k) {
+
+						return k;
+
+					}
+
+				},
+
+				Quadratic: {
+
+					In: function (k) {
+
+						return k * k;
+
+					},
+
+					Out: function (k) {
+
+						return k * (2 - k);
+
+					},
+
+					InOut: function (k) {
+
+						if ((k *= 2) < 1) {
+							return 0.5 * k * k;
+						}
+
+						return -0.5 * (--k * (k - 2) - 1);
+
+					}
+
+				},
+
+				Cubic: {
+
+					In: function (k) {
+
+						return k * k * k;
+
+					},
+
+					Out: function (k) {
+
+						return --k * k * k + 1;
+
+					},
+
+					InOut: function (k) {
+
+						if ((k *= 2) < 1) {
+							return 0.5 * k * k * k;
+						}
+
+						return 0.5 * ((k -= 2) * k * k + 2);
+
+					}
+
+				},
+
+				Quartic: {
+
+					In: function (k) {
+
+						return k * k * k * k;
+
+					},
+
+					Out: function (k) {
+
+						return 1 - (--k * k * k * k);
+
+					},
+
+					InOut: function (k) {
+
+						if ((k *= 2) < 1) {
+							return 0.5 * k * k * k * k;
+						}
+
+						return -0.5 * ((k -= 2) * k * k * k - 2);
+
+					}
+
+				},
+
+				Quintic: {
+
+					In: function (k) {
+
+						return k * k * k * k * k;
+
+					},
+
+					Out: function (k) {
+
+						return --k * k * k * k * k + 1;
+
+					},
+
+					InOut: function (k) {
+
+						if ((k *= 2) < 1) {
+							return 0.5 * k * k * k * k * k;
+						}
+
+						return 0.5 * ((k -= 2) * k * k * k * k + 2);
+
+					}
+
+				},
+
+				Sinusoidal: {
+
+					In: function (k) {
+
+						return 1 - Math.cos(k * Math.PI / 2);
+
+					},
+
+					Out: function (k) {
+
+						return Math.sin(k * Math.PI / 2);
+
+					},
+
+					InOut: function (k) {
+
+						return 0.5 * (1 - Math.cos(Math.PI * k));
+
+					}
+
+				},
+
+				Exponential: {
+
+					In: function (k) {
+
+						return k === 0 ? 0 : Math.pow(1024, k - 1);
+
+					},
+
+					Out: function (k) {
+
+						return k === 1 ? 1 : 1 - Math.pow(2, -10 * k);
+
+					},
+
+					InOut: function (k) {
+
+						if (k === 0) {
+							return 0;
+						}
+
+						if (k === 1) {
+							return 1;
+						}
+
+						if ((k *= 2) < 1) {
+							return 0.5 * Math.pow(1024, k - 1);
+						}
+
+						return 0.5 * (- Math.pow(2, -10 * (k - 1)) + 2);
+
+					}
+
+				},
+
+				Circular: {
+
+					In: function (k) {
+
+						return 1 - Math.sqrt(1 - k * k);
+
+					},
+
+					Out: function (k) {
+
+						return Math.sqrt(1 - (--k * k));
+
+					},
+
+					InOut: function (k) {
+
+						if ((k *= 2) < 1) {
+							return -0.5 * (Math.sqrt(1 - k * k) - 1);
+						}
+
+						return 0.5 * (Math.sqrt(1 - (k -= 2) * k) + 1);
+
+					}
+
+				},
+
+				Elastic: {
+
+					In: function (k) {
+
+						if (k === 0) {
+							return 0;
+						}
+
+						if (k === 1) {
+							return 1;
+						}
+
+						return -Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
+
+					},
+
+					Out: function (k) {
+
+						if (k === 0) {
+							return 0;
+						}
+
+						if (k === 1) {
+							return 1;
+						}
+
+						return Math.pow(2, -10 * k) * Math.sin((k - 0.1) * 5 * Math.PI) + 1;
+
+					},
+
+					InOut: function (k) {
+
+						if (k === 0) {
+							return 0;
+						}
+
+						if (k === 1) {
+							return 1;
+						}
+
+						k *= 2;
+
+						if (k < 1) {
+							return -0.5 * Math.pow(2, 10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI);
+						}
+
+						return 0.5 * Math.pow(2, -10 * (k - 1)) * Math.sin((k - 1.1) * 5 * Math.PI) + 1;
+
+					}
+
+				},
+
+				Back: {
+
+					In: function (k) {
+
+						var s = 1.70158;
+
+						return k * k * ((s + 1) * k - s);
+
+					},
+
+					Out: function (k) {
+
+						var s = 1.70158;
+
+						return --k * k * ((s + 1) * k + s) + 1;
+
+					},
+
+					InOut: function (k) {
+
+						var s = 1.70158 * 1.525;
+
+						if ((k *= 2) < 1) {
+							return 0.5 * (k * k * ((s + 1) * k - s));
+						}
+
+						return 0.5 * ((k -= 2) * k * ((s + 1) * k + s) + 2);
+
+					}
+
+				},
+
+				Bounce: {
+
+					In: function (k) {
+
+						return 1 - TWEEN.Easing.Bounce.Out(1 - k);
+
+					},
+
+					Out: function (k) {
+
+						if (k < (1 / 2.75)) {
+							return 7.5625 * k * k;
+						} else if (k < (2 / 2.75)) {
+							return 7.5625 * (k -= (1.5 / 2.75)) * k + 0.75;
+						} else if (k < (2.5 / 2.75)) {
+							return 7.5625 * (k -= (2.25 / 2.75)) * k + 0.9375;
+						} else {
+							return 7.5625 * (k -= (2.625 / 2.75)) * k + 0.984375;
+						}
+
+					},
+
+					InOut: function (k) {
+
+						if (k < 0.5) {
+							return TWEEN.Easing.Bounce.In(k * 2) * 0.5;
+						}
+
+						return TWEEN.Easing.Bounce.Out(k * 2 - 1) * 0.5 + 0.5;
+
+					}
+
+				}
+
+			};
+
+			TWEEN.Interpolation = {
+
+				Linear: function (v, k) {
+
+					var m = v.length - 1;
+					var f = m * k;
+					var i = Math.floor(f);
+					var fn = TWEEN.Interpolation.Utils.Linear;
+
+					if (k < 0) {
+						return fn(v[0], v[1], f);
+					}
+
+					if (k > 1) {
+						return fn(v[m], v[m - 1], m - f);
+					}
+
+					return fn(v[i], v[i + 1 > m ? m : i + 1], f - i);
+
+				},
+
+				Bezier: function (v, k) {
+
+					var b = 0;
+					var n = v.length - 1;
+					var pw = Math.pow;
+					var bn = TWEEN.Interpolation.Utils.Bernstein;
+
+					for (var i = 0; i <= n; i++) {
+						b += pw(1 - k, n - i) * pw(k, i) * v[i] * bn(n, i);
+					}
+
+					return b;
+
+				},
+
+				CatmullRom: function (v, k) {
+
+					var m = v.length - 1;
+					var f = m * k;
+					var i = Math.floor(f);
+					var fn = TWEEN.Interpolation.Utils.CatmullRom;
+
+					if (v[0] === v[m]) {
+
+						if (k < 0) {
+							i = Math.floor(f = m * (1 + k));
+						}
+
+						return fn(v[(i - 1 + m) % m], v[i], v[(i + 1) % m], v[(i + 2) % m], f - i);
+
+					} else {
+
+						if (k < 0) {
+							return v[0] - (fn(v[0], v[0], v[1], v[1], -f) - v[0]);
+						}
+
+						if (k > 1) {
+							return v[m] - (fn(v[m], v[m], v[m - 1], v[m - 1], f - m) - v[m]);
+						}
+
+						return fn(v[i ? i - 1 : 0], v[i], v[m < i + 1 ? m : i + 1], v[m < i + 2 ? m : i + 2], f - i);
+
+					}
+
+				},
+
+				Utils: {
+
+					Linear: function (p0, p1, t) {
+
+						return (p1 - p0) * t + p0;
+
+					},
+
+					Bernstein: function (n, i) {
+
+						var fc = TWEEN.Interpolation.Utils.Factorial;
+
+						return fc(n) / fc(i) / fc(n - i);
+
+					},
+
+					Factorial: (function () {
+
+						var a = [1];
+
+						return function (n) {
+
+							var s = 1;
+
+							if (a[n]) {
+								return a[n];
+							}
+
+							for (var i = n; i > 1; i--) {
+								s *= i;
+							}
+
+							a[n] = s;
+							return s;
+
+						};
+
+					})(),
+
+					CatmullRom: function (p0, p1, p2, p3, t) {
+
+						var v0 = (p2 - p0) * 0.5;
+						var v1 = (p3 - p1) * 0.5;
+						var t2 = t * t;
+						var t3 = t * t2;
+
+						return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+
+					}
+
+				}
+
+			};
+
+			// UMD (Universal Module Definition)
+			(function (root) {
+
+				{
+
+					// Node.js
+					module.exports = TWEEN;
+
+				}
+
+			})(); 
+		} (Tween));
+		return Tween.exports;
+	}
+
+	var TweenExports = requireTween();
+	var TWEEN = /*@__PURE__*/getDefaultExportFromCjs(TweenExports);
 
 	/**
 	 * @classdesc Information spot attached to panorama
@@ -1920,7 +1980,7 @@
 
 	    imageSrc = imageSrc || DataImage.Info;
 
-	    THREE.Sprite.call( this );
+	    THREE__namespace.Sprite.call( this );
 
 	    this.type = 'infospot';
 
@@ -1949,13 +2009,13 @@
 	    // Event Handler
 	    this.HANDLER_FOCUS = null;	
 
-	    this.material.side = THREE.DoubleSide;
+	    this.material.side = THREE__namespace.DoubleSide;
 	    this.material.depthTest = false;
 	    this.material.transparent = true;
 	    this.material.opacity = 0;
 
-	    this.scaleUpAnimation = new Tween.Tween();
-	    this.scaleDownAnimation = new Tween.Tween();
+	    this.scaleUpAnimation = new TWEEN.Tween();
+	    this.scaleDownAnimation = new TWEEN.Tween();
 
 
 	    const postLoad = function ( texture ) {
@@ -1963,7 +2023,7 @@
 	        if ( !this.material ) { return; }
 
 	        const ratio = texture.image.width / texture.image.height;
-	        const textureScale = new THREE.Vector3();
+	        const textureScale = new THREE__namespace.Vector3();
 
 	        texture.image.width = texture.image.naturalWidth || 64;
 	        texture.image.height = texture.image.naturalHeight || 64;
@@ -1972,13 +2032,13 @@
 
 	        textureScale.copy( this.scale );
 
-	        this.scaleUpAnimation = new Tween.Tween( this.scale )
+	        this.scaleUpAnimation = new TWEEN.Tween( this.scale )
 	            .to( { x: textureScale.x * scaleFactor, y: textureScale.y * scaleFactor }, duration )
-	            .easing( Tween.Easing.Elastic.Out );
+	            .easing( TWEEN.Easing.Elastic.Out );
 
-	        this.scaleDownAnimation = new Tween.Tween( this.scale )
+	        this.scaleDownAnimation = new TWEEN.Tween( this.scale )
 	            .to( { x: textureScale.x, y: textureScale.y }, duration )
-	            .easing( Tween.Easing.Elastic.Out );
+	            .easing( TWEEN.Easing.Elastic.Out );
 
 	        this.material.map = texture;
 	        this.material.needsUpdate = true;
@@ -1986,15 +2046,15 @@
 	    }.bind( this );
 
 	    // Add show and hide animations
-	    this.showAnimation = new Tween.Tween( this.material )
+	    this.showAnimation = new TWEEN.Tween( this.material )
 	        .to( { opacity: 1 }, duration )
 	        .onStart( this.enableRaycast.bind( this, true ) )
-	        .easing( Tween.Easing.Quartic.Out );
+	        .easing( TWEEN.Easing.Quartic.Out );
 
-	    this.hideAnimation = new Tween.Tween( this.material )
+	    this.hideAnimation = new TWEEN.Tween( this.material )
 	        .to( { opacity: 0 }, duration )
 	        .onStart( this.enableRaycast.bind( this, false ) )
-	        .easing( Tween.Easing.Quartic.Out );
+	        .easing( TWEEN.Easing.Quartic.Out );
 
 	    // Attach event listeners
 	    this.addEventListener( 'click', this.onClick );
@@ -2009,7 +2069,7 @@
 	    TextureLoader.load( imageSrc, postLoad );	
 
 	}
-	Infospot.prototype = Object.assign( Object.create( THREE.Sprite.prototype ), {
+	Infospot.prototype = Object.assign( Object.create( THREE__namespace.Sprite.prototype ), {
 
 	    constructor: Infospot,
 
@@ -2597,7 +2657,7 @@
 
 	    }
 
-	    THREE.EventDispatcher.call( this );
+	    THREE__namespace.EventDispatcher.call( this );
 
 	    this.DEFAULT_TRANSITION  = 'all 0.27s ease';
 	    this.TOUCH_ENABLED = !!(( 'ontouchstart' in window ) || window.DocumentTouch && document instanceof DocumentTouch);
@@ -2621,7 +2681,7 @@
 
 	}
 
-	Widget.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype ), {
+	Widget.prototype = Object.assign( Object.create( THREE__namespace.EventDispatcher.prototype ), {
 
 	    constructor: Widget,
 
@@ -3846,7 +3906,7 @@
 	 */
 	function Panorama ( geometry, material ) {
 
-	    THREE.Mesh.call( this, geometry, material );
+	    THREE__namespace.Mesh.call( this, geometry, material );
 
 	    this.type = 'panorama';
 
@@ -3871,7 +3931,7 @@
 	    this.linkingImageURL = undefined;
 	    this.linkingImageScale = undefined;
 
-	    this.material.side = THREE.BackSide;
+	    this.material.side = THREE__namespace.BackSide;
 	    this.material.opacity = 0;
 
 	    this.scale.x *= -1;
@@ -3879,7 +3939,7 @@
 
 	    this.active = false;
 
-	    this.infospotAnimation = new Tween.Tween( this ).to( {}, this.animationDuration / 2 );
+	    this.infospotAnimation = new TWEEN.Tween( this ).to( {}, this.animationDuration / 2 );
 
 	    this.addEventListener( 'load', this.fadeIn.bind( this ) );
 	    this.addEventListener( 'panolens-container', this.setContainer.bind( this ) );
@@ -3889,7 +3949,7 @@
 
 	}
 
-	Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
+	Panorama.prototype = Object.assign( Object.create( THREE__namespace.Mesh.prototype ), {
 
 	    constructor: Panorama,
 
@@ -3946,14 +4006,14 @@
 	        } else {
 
 	            // Counter scale.x = -1 effect
-	            invertedObject = new THREE.Object3D();
+	            invertedObject = new THREE__namespace.Object3D();
 	            invertedObject.scale.x = -1;
 	            invertedObject.scalePlaceHolder = true;
 	            invertedObject.add( object );
 
 	        }
 
-	        THREE.Object3D.prototype.add.call( this, invertedObject );
+	        THREE__namespace.Object3D.prototype.add.call( this, invertedObject );
 
 	    },
 
@@ -4132,6 +4192,18 @@
 	     */
 	    updateTexture: function ( texture ) {
 
+	        const previousMap = this.material.map;
+
+	        if ( previousMap ) {
+
+	            texture.minFilter = previousMap.minFilter;
+	            texture.magFilter = previousMap.magFilter;
+	            texture.wrapS = previousMap.wrapS;
+	            texture.wrapT = previousMap.wrapT;
+	            texture.mapping = previousMap.mapping;
+
+	        }
+
 	        this.material.map = texture;
 	        this.material.needsUpdate = true;
 
@@ -4286,8 +4358,8 @@
 
 	    setupTransitions: function () {
 
-	        this.fadeInAnimation = new Tween.Tween( this.material )
-	            .easing( Tween.Easing.Quartic.Out )
+	        this.fadeInAnimation = new TWEEN.Tween( this.material )
+	            .easing( TWEEN.Easing.Quartic.Out )
 	            .onStart( function () {
 
 	                this.visible = true;
@@ -4302,8 +4374,8 @@
 
 	            }.bind( this ) );
 
-	        this.fadeOutAnimation = new Tween.Tween( this.material )
-	            .easing( Tween.Easing.Quartic.Out )
+	        this.fadeOutAnimation = new TWEEN.Tween( this.material )
+	            .easing( TWEEN.Easing.Quartic.Out )
 	            .onComplete( function () {
 
 	                this.visible = false;
@@ -4318,8 +4390,8 @@
 
 	            }.bind( this ) );
 
-	        this.enterTransition = new Tween.Tween( this )
-	            .easing( Tween.Easing.Quartic.Out )
+	        this.enterTransition = new TWEEN.Tween( this )
+	            .easing( TWEEN.Easing.Quartic.Out )
 	            .onComplete( function () {
 
 	                /**
@@ -4332,8 +4404,8 @@
 	            }.bind ( this ) )
 	            .start();
 
-	        this.leaveTransition = new Tween.Tween( this )
-	            .easing( Tween.Easing.Quartic.Out );
+	        this.leaveTransition = new TWEEN.Tween( this )
+	            .easing( TWEEN.Easing.Quartic.Out );
 
 	    },
 
@@ -4558,8 +4630,8 @@
 	function ImagePanorama ( image, _geometry, _material ) {
 
 	    const radius = 5000;
-	    const geometry = _geometry || new THREE.SphereBufferGeometry( radius, 60, 40 );
-	    const material = _material || new THREE.MeshBasicMaterial( { opacity: 0, transparent: true } );
+	    const geometry = _geometry || new THREE__namespace.SphereBufferGeometry( radius, 60, 40 );
+	    const material = _material || new THREE__namespace.MeshBasicMaterial( { opacity: 0, transparent: true } );
 
 	    Panorama.call( this, geometry, material );
 
@@ -4594,7 +4666,7 @@
 
 	        } else if ( src instanceof HTMLImageElement ) {
 
-	            this.onLoad( new THREE.Texture( src ) );
+	            this.onLoad( new THREE__namespace.Texture( src ) );
 
 	        }
 
@@ -4608,7 +4680,7 @@
 	     */
 	    onLoad: function ( texture ) {
 
-	        texture.minFilter = texture.magFilter = THREE.LinearFilter;
+	        texture.minFilter = texture.magFilter = THREE__namespace.LinearFilter;
 	        texture.needsUpdate = true;
 			
 	        this.updateTexture( texture );
@@ -4638,7 +4710,7 @@
 	        const { material: { map } } = this;
 
 	        // Release cached image
-	        THREE.Cache.remove( this.src );
+	        THREE__namespace.Cache.remove( this.src );
 
 	        if ( map ) { map.dispose(); }
 
@@ -4654,10 +4726,10 @@
 	 */
 	function EmptyPanorama () {
 
-	    const geometry = new THREE.BufferGeometry();
-	    const material = new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0, transparent: true } );
+	    const geometry = new THREE__namespace.BufferGeometry();
+	    const material = new THREE__namespace.MeshBasicMaterial( { color: 0x000000, opacity: 0, transparent: true } );
 
-	    geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array(), 1 ) );
+	    geometry.addAttribute( 'position', new THREE__namespace.BufferAttribute( new Float32Array(), 1 ) );
 
 	    Panorama.call( this, geometry, material );
 
@@ -4677,14 +4749,14 @@
 	function CubePanorama ( images = [] ){
 
 	    const edgeLength = 10000;
-	    const shader = Object.assign( {}, THREE.ShaderLib[ 'cube' ] );
-	    const geometry = new THREE.BoxBufferGeometry( edgeLength, edgeLength, edgeLength );
-	    const material = new THREE.ShaderMaterial( {
+	    const shader = Object.assign( {}, THREE__namespace.ShaderLib[ 'cube' ] );
+	    const geometry = new THREE__namespace.BoxGeometry( edgeLength, edgeLength, edgeLength );
+	    const material = new THREE__namespace.ShaderMaterial( {
 
 	        fragmentShader: shader.fragmentShader,
 	        vertexShader: shader.vertexShader,
 	        uniforms: shader.uniforms,
-	        side: THREE.BackSide,
+	        side: THREE__namespace.BackSide,
 	        transparent: true
 
 	    } );
@@ -4708,13 +4780,13 @@
 	     */
 	    load: function () {
 
-	        CubeTextureLoader.load( 	
+	        CubeTextureLoader.load(
 
-	            this.images, 
+	            this.images,
 
-	            this.onLoad.bind( this ), 
-	            this.onProgress.bind( this ), 
-	            this.onError.bind( this ) 
+	            this.onLoad.bind( this ),
+	            this.onProgress.bind( this ),
+	            this.onError.bind( this )
 
 	        );
 
@@ -4727,8 +4799,8 @@
 	     * @instance
 	     */
 	    onLoad: function ( texture ) {
-			
-	        this.material.uniforms[ 'tCube' ].value = texture;
+
+	        this.material.uniforms[ 'envMap' ].value = texture;
 
 	        Panorama.prototype.onLoad.call( this );
 
@@ -4739,13 +4811,13 @@
 	     * @memberOf CubePanorama
 	     * @instance
 	     */
-	    dispose: function () {	
+	    dispose: function () {
 
-	        const { value } = this.material.uniforms.tCube;
+	        const { value } = this.material.uniforms.envMap;
 
-	        this.images.forEach( ( image ) => { THREE.Cache.remove( image ); } );
+	        this.images.forEach( ( image ) => { THREE__namespace.Cache.remove( image ); } );
 
-	        if ( value instanceof THREE.CubeTexture ) {
+	        if ( value instanceof THREE__namespace.CubeTexture ) {
 
 	            value.dispose();
 
@@ -4797,8 +4869,8 @@
 	function VideoPanorama ( src, options = {} ) {
 
 	    const radius = 5000;
-	    const geometry = new THREE.SphereBufferGeometry( radius, 60, 40 );
-	    const material = new THREE.MeshBasicMaterial( { opacity: 0, transparent: true } );
+	    const geometry = new THREE__namespace.SphereBufferGeometry( radius, 60, 40 );
+	    const material = new THREE__namespace.MeshBasicMaterial( { opacity: 0, transparent: true } );
 
 	    Panorama.call( this, geometry, material );
 
@@ -4990,10 +5062,10 @@
 
 	        if ( !video ) return;
 
-	        const videoTexture = new THREE.VideoTexture( video );
-	        videoTexture.minFilter = THREE.LinearFilter;
-	        videoTexture.magFilter = THREE.LinearFilter;
-	        videoTexture.format = THREE.RGBFormat;
+	        const videoTexture = new THREE__namespace.VideoTexture( video );
+	        videoTexture.minFilter = THREE__namespace.LinearFilter;
+	        videoTexture.magFilter = THREE__namespace.LinearFilter;
+	        videoTexture.format = THREE__namespace.RGBFormat;
 
 	        this.updateTexture( videoTexture );
 		
@@ -5639,7 +5711,7 @@
 	     */
 	    onLoad: function ( canvas ) {
 
-	        ImagePanorama.prototype.onLoad.call( this, new THREE.Texture( canvas ) );
+	        ImagePanorama.prototype.onLoad.call( this, new THREE__namespace.Texture( canvas ) );
 
 	    },
 
@@ -5664,6 +5736,7 @@
 	 * @author pchen66
 	 */
 
+
 	/**
 	 * @description Stereograhpic Shader
 	 * @module StereographicShader
@@ -5680,9 +5753,9 @@
 
 	    uniforms: {
 
-	        'tDiffuse': { value: new THREE.Texture() },
+	        'tDiffuse': { value: new THREE__namespace.Texture() },
 	        'resolution': { value: 1.0 },
-	        'transform': { value: new THREE.Matrix4() },
+	        'transform': { value: new THREE__namespace.Matrix4() },
 	        'zoom': { value: 1.0 },
 	        'opacity': { value: 1.0 }
 
@@ -5761,15 +5834,15 @@
 	    this.frameId = null;
 
 	    this.dragging = false;
-	    this.userMouse = new THREE.Vector2();
+	    this.userMouse = new THREE__namespace.Vector2();
 
-	    this.quatA = new THREE.Quaternion();
-	    this.quatB = new THREE.Quaternion();
-	    this.quatCur = new THREE.Quaternion();
-	    this.quatSlerp = new THREE.Quaternion();
+	    this.quatA = new THREE__namespace.Quaternion();
+	    this.quatB = new THREE__namespace.Quaternion();
+	    this.quatCur = new THREE__namespace.Quaternion();
+	    this.quatSlerp = new THREE__namespace.Quaternion();
 
-	    this.vectorX = new THREE.Vector3( 1, 0, 0 );
-	    this.vectorY = new THREE.Vector3( 0, 1, 0 );
+	    this.vectorX = new THREE__namespace.Vector3( 1, 0, 0 );
+	    this.vectorY = new THREE__namespace.Vector3( 0, 1, 0 );
 
 	    this.addEventListener( 'window-resize', this.onWindowResize );
 
@@ -5805,7 +5878,7 @@
 
 	    createGeometry: function ( size, ratio ) {
 
-	        return new THREE.PlaneBufferGeometry( size, size * ratio );
+	        return new THREE__namespace.PlaneGeometry( size, size * ratio );
 
 	    },
 
@@ -5816,12 +5889,12 @@
 	        uniforms.zoom.value = size;
 	        uniforms.opacity.value = 0.0;
 
-	        return new THREE.ShaderMaterial( {
+	        return new THREE__namespace.ShaderMaterial( {
 
 	            uniforms: uniforms,
 	            vertexShader: shader.vertexShader,
 	            fragmentShader: shader.fragmentShader,
-	            side: THREE.BackSide,
+	            side: THREE__namespace.BackSide,
 	            transparent: true
 
 	        } );
@@ -5881,10 +5954,6 @@
 
 	            break;
 
-	        default:
-
-	            break;
-
 	        }
 
 	        this.onUpdateCallback();
@@ -5902,8 +5971,8 @@
 	            const x = ( event.clientX >= 0 ) ? event.clientX : event.touches[ 0 ].clientX;
 	            const y = ( event.clientY >= 0 ) ? event.clientY : event.touches[ 0 ].clientY;
 
-	            const angleX = THREE.Math.degToRad( x - this.userMouse.x ) * 0.4;
-	            const angleY = THREE.Math.degToRad( y - this.userMouse.y ) * 0.4;
+	            const angleX = THREE__namespace.MathUtils.degToRad( x - this.userMouse.x ) * 0.4;
+	            const angleY = THREE__namespace.MathUtils.degToRad( y - this.userMouse.y ) * 0.4;
 
 	            if ( this.dragging ) {
 	                this.quatA.setFromAxisAngle( this.vectorY, angleX );
@@ -5921,10 +5990,6 @@
 	            const distance = Math.sqrt( dx * dx + dy * dy );
 
 	            this.addZoomDelta( this.userMouse.pinchDistance - distance );
-
-	            break;
-
-	        default:
 
 	            break;
 
@@ -6094,7 +6159,7 @@
 	     */
 	    updateTexture: function ( texture ) {
 
-	        texture.minFilter = texture.magFilter = THREE.LinearFilter;
+	        texture.minFilter = texture.magFilter = THREE__namespace.LinearFilter;
 			
 	        this.material.uniforms[ 'tDiffuse' ].value = texture;
 
@@ -6130,8 +6195,8 @@
 	function CameraPanorama ( constraints ) {
 
 	    const radius = 5000;
-	    const geometry = new THREE.SphereBufferGeometry( radius, 60, 40 );
-	    const material = new THREE.MeshBasicMaterial( { visible: false });
+	    const geometry = new THREE__namespace.SphereBufferGeometry( radius, 60, 40 );
+	    const material = new THREE__namespace.MeshBasicMaterial( { visible: false });
 
 	    Panorama.call( this, geometry, material );
 
@@ -6220,7 +6285,7 @@
 	     * "target" sets the location of focus, where the control orbits around
 	     * and where it pans with respect to.
 	     */
-	    this.target = new THREE.Vector3();
+	    this.target = new THREE__namespace.Vector3();
 
 	    // center is old, deprecated; use "target" instead
 	    this.center = this.target;
@@ -6261,7 +6326,7 @@
 
 	    // Momentum
 	  	this.momentumDampingFactor = 0.90;
-	  	this.momentumScalingFactor = -0.005;
+	  	this.momentumScalingFactor = -5e-3;
 	  	this.momentumKeydownFactor = 20;
 
 	  	// Fov
@@ -6282,7 +6347,7 @@
 	    this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
 
 	    // Mouse buttons
-	    this.mouseButtons = { ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
+	    this.mouseButtons = { ORBIT: THREE__namespace.MOUSE.LEFT, ZOOM: THREE__namespace.MOUSE.MIDDLE, PAN: THREE__namespace.MOUSE.RIGHT };
 
 	    /*
 	     * //////////
@@ -6294,30 +6359,30 @@
 	    var EPS = 10e-8;
 	    var MEPS = 10e-5;
 
-	    var rotateStart = new THREE.Vector2();
-	    var rotateEnd = new THREE.Vector2();
-	    var rotateDelta = new THREE.Vector2();
+	    var rotateStart = new THREE__namespace.Vector2();
+	    var rotateEnd = new THREE__namespace.Vector2();
+	    var rotateDelta = new THREE__namespace.Vector2();
 
-	    var panStart = new THREE.Vector2();
-	    var panEnd = new THREE.Vector2();
-	    var panDelta = new THREE.Vector2();
-	    var panOffset = new THREE.Vector3();
+	    var panStart = new THREE__namespace.Vector2();
+	    var panEnd = new THREE__namespace.Vector2();
+	    var panDelta = new THREE__namespace.Vector2();
+	    var panOffset = new THREE__namespace.Vector3();
 
-	    var offset = new THREE.Vector3();
+	    var offset = new THREE__namespace.Vector3();
 
-	    var dollyStart = new THREE.Vector2();
-	    var dollyEnd = new THREE.Vector2();
-	    var dollyDelta = new THREE.Vector2();
+	    var dollyStart = new THREE__namespace.Vector2();
+	    var dollyEnd = new THREE__namespace.Vector2();
+	    var dollyDelta = new THREE__namespace.Vector2();
 
 	    var theta = 0;
 	    var phi = 0;
 	    var phiDelta = 0;
 	    var thetaDelta = 0;
 	    var scale = 1;
-	    var pan = new THREE.Vector3();
+	    var pan = new THREE__namespace.Vector3();
 
-	    var lastPosition = new THREE.Vector3();
-	    var lastQuaternion = new THREE.Quaternion();
+	    var lastPosition = new THREE__namespace.Vector3();
+	    var lastQuaternion = new THREE__namespace.Quaternion();
 
 	    var momentumLeft = 0, momentumUp = 0;
 	    var eventPrevious;
@@ -6337,8 +6402,8 @@
 
 	    // so camera.up is the orbit axis
 
-	    var quat = new THREE.Quaternion().setFromUnitVectors( object.up, new THREE.Vector3( 0, 1, 0 ) );
-	    var quatInverse = quat.clone().inverse();
+	    var quat = new THREE__namespace.Quaternion().setFromUnitVectors( object.up, new THREE__namespace.Vector3( 0, 1, 0 ) );
+	    var quatInverse = quat.clone().invert();
 
 	    // events
 
@@ -6414,7 +6479,7 @@
 
 	        var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
-	        if ( scope.object instanceof THREE.PerspectiveCamera ) {
+	        if ( scope.object instanceof THREE__namespace.PerspectiveCamera ) {
 
 	            // perspective
 	            var position = scope.object.position;
@@ -6428,7 +6493,7 @@
 	            scope.panLeft( 2 * deltaX * targetDistance / element.clientHeight );
 	            scope.panUp( 2 * deltaY * targetDistance / element.clientHeight );
 
-	        } else if ( scope.object instanceof THREE.OrthographicCamera ) {
+	        } else if ( scope.object instanceof THREE__namespace.OrthographicCamera ) {
 
 	            // orthographic
 	            scope.panLeft( deltaX * (scope.object.right - scope.object.left) / element.clientWidth );
@@ -6469,11 +6534,11 @@
 
 	        }
 
-	        if ( scope.object instanceof THREE.PerspectiveCamera ) {
+	        if ( scope.object instanceof THREE__namespace.PerspectiveCamera ) {
 
 	            scale /= dollyScale;
 
-	        } else if ( scope.object instanceof THREE.OrthographicCamera ) {
+	        } else if ( scope.object instanceof THREE__namespace.OrthographicCamera ) {
 
 	            scope.object.zoom = Math.max( this.minZoom, Math.min( this.maxZoom, this.object.zoom * dollyScale ) );
 	            scope.object.updateProjectionMatrix();
@@ -6495,11 +6560,11 @@
 
 	        }
 
-	        if ( scope.object instanceof THREE.PerspectiveCamera ) {
+	        if ( scope.object instanceof THREE__namespace.PerspectiveCamera ) {
 
 	            scale *= dollyScale;
 
-	        } else if ( scope.object instanceof THREE.OrthographicCamera ) {
+	        } else if ( scope.object instanceof THREE__namespace.OrthographicCamera ) {
 
 	            scope.object.zoom = Math.max( this.minZoom, Math.min( this.maxZoom, this.object.zoom / dollyScale ) );
 	            scope.object.updateProjectionMatrix();
@@ -7051,7 +7116,7 @@
 	    this.update();
 
 	}
-	OrbitControls.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype ), {
+	OrbitControls.prototype = Object.assign( Object.create( THREE__namespace.EventDispatcher.prototype ), {
 
 	    constructor: OrbitControls
 
@@ -7061,8 +7126,8 @@
 	 * @classdesc Device Orientation Control
 	 * @constructor
 	 * @external DeviceOrientationControls
-	 * @param {THREE.Camera} camera 
-	 * @param {HTMLElement} domElement 
+	 * @param {THREE.Camera} camera
+	 * @param {HTMLElement} domElement
 	 */
 	function DeviceOrientationControls ( camera, domElement ) {
 
@@ -7085,7 +7150,6 @@
 
 	    this.alpha = 0;
 	    this.alphaOffsetAngle = 0;
-
 
 	    var onDeviceOrientationChangeEvent = function( event ) {
 
@@ -7114,8 +7178,8 @@
 	        event.preventDefault();
 	        event.stopPropagation();
 
-	        rotY += THREE.Math.degToRad( ( event.touches[ 0 ].pageX - tempX ) / 4 );
-	        rotX += THREE.Math.degToRad( ( tempY - event.touches[ 0 ].pageY ) / 4 );
+	        rotY += THREE__namespace.MathUtils.degToRad( ( event.touches[ 0 ].pageX - tempX ) / 4 );
+	        rotX += THREE__namespace.MathUtils.degToRad( ( tempY - event.touches[ 0 ].pageY ) / 4 );
 
 	        scope.updateAlphaOffsetAngle( rotY );
 
@@ -7128,36 +7192,36 @@
 
 	    var setCameraQuaternion = function( quaternion, alpha, beta, gamma, orient ) {
 
-	        var zee = new THREE.Vector3( 0, 0, 1 );
+	        var zee = new THREE__namespace.Vector3( 0, 0, 1 );
 
-	        var euler = new THREE.Euler();
+	        var euler = new THREE__namespace.Euler();
 
-	        var q0 = new THREE.Quaternion();
+	        var q0 = new THREE__namespace.Quaternion();
 
-	        var q1 = new THREE.Quaternion( - Math.sqrt( 0.5 ), 0, 0, Math.sqrt( 0.5 ) ); // - PI/2 around the x-axis
+	        var q1 = new THREE__namespace.Quaternion( - Math.sqrt( 0.5 ), 0, 0, Math.sqrt( 0.5 ) ); // - PI/2 around the x-axis
 
 	        var vectorFingerY;
-	        var fingerQY = new THREE.Quaternion();
-	        var fingerQX = new THREE.Quaternion();
+	        var fingerQY = new THREE__namespace.Quaternion();
+	        var fingerQX = new THREE__namespace.Quaternion();
 
 	        if ( scope.screenOrientation == 0 ) {
 
-	            vectorFingerY = new THREE.Vector3( 1, 0, 0 );
+	            vectorFingerY = new THREE__namespace.Vector3( 1, 0, 0 );
 	            fingerQY.setFromAxisAngle( vectorFingerY, -rotX );
 
 	        } else if ( scope.screenOrientation == 180 ) {
 
-	            vectorFingerY = new THREE.Vector3( 1, 0, 0 );
+	            vectorFingerY = new THREE__namespace.Vector3( 1, 0, 0 );
 	            fingerQY.setFromAxisAngle( vectorFingerY, rotX );
 
 	        } else if ( scope.screenOrientation == 90 ) {
 
-	            vectorFingerY = new THREE.Vector3( 0, 1, 0 );
+	            vectorFingerY = new THREE__namespace.Vector3( 0, 1, 0 );
 	            fingerQY.setFromAxisAngle( vectorFingerY, rotX );
 
-	        } else if ( scope.screenOrientation == - 90) {
+	        } else if ( scope.screenOrientation == -90) {
 
-	            vectorFingerY = new THREE.Vector3( 0, 1, 0 );
+	            vectorFingerY = new THREE__namespace.Vector3( 0, 1, 0 );
 	            fingerQY.setFromAxisAngle( vectorFingerY, -rotX );
 
 	        }
@@ -7175,18 +7239,50 @@
 
 	    };
 
+	    // Store bound update handler for proper cleanup
+	    var boundUpdate = this.update.bind( this );
+
 	    this.connect = function() {
 
 	        onScreenOrientationChangeEvent(); // run once on load
 
-	        window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
-	        window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, { passive: true } );
-	        window.addEventListener( 'deviceorientation', this.update.bind( this ), { passive: true } );
+	        var startListening = function () {
 
-	        scope.domElement.addEventListener( 'touchstart', onTouchStartEvent, { passive: false } );
-	        scope.domElement.addEventListener( 'touchmove', onTouchMoveEvent, { passive: false } );
+	            window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
+	            window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, { passive: true } );
+	            window.addEventListener( 'deviceorientation', boundUpdate, { passive: true } );
 
-	        scope.enabled = true;
+	            scope.domElement.addEventListener( 'touchstart', onTouchStartEvent, { passive: false } );
+	            scope.domElement.addEventListener( 'touchmove', onTouchMoveEvent, { passive: false } );
+
+	            scope.enabled = true;
+
+	        };
+
+	        // Request permission on iOS 13+ and other browsers that require it
+	        if ( typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function' ) {
+
+	            DeviceOrientationEvent.requestPermission()
+	                .then( function ( response ) {
+
+	                    if ( response === 'granted' ) {
+
+	                        startListening();
+
+	                    }
+
+	                } )
+	                .catch( function () {
+
+	                    console.warn( 'DeviceOrientationControls: Unable to use DeviceOrientation API' );
+
+	                } );
+
+	        } else {
+
+	            startListening();
+
+	        }
 
 	    };
 
@@ -7194,7 +7290,7 @@
 
 	        window.removeEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
 	        window.removeEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
-	        window.removeEventListener( 'deviceorientation', this.update.bind( this ), false );
+	        window.removeEventListener( 'deviceorientation', boundUpdate, false );
 
 	        scope.domElement.removeEventListener( 'touchstart', onTouchStartEvent, false );
 	        scope.domElement.removeEventListener( 'touchmove', onTouchMoveEvent, false );
@@ -7207,10 +7303,10 @@
 
 	        if ( scope.enabled === false ) return;
 
-	        var alpha = scope.deviceOrientation.alpha ? THREE.Math.degToRad( scope.deviceOrientation.alpha ) + scope.alphaOffsetAngle : 0; // Z
-	        var beta = scope.deviceOrientation.beta ? THREE.Math.degToRad( scope.deviceOrientation.beta ) : 0; // X'
-	        var gamma = scope.deviceOrientation.gamma ? THREE.Math.degToRad( scope.deviceOrientation.gamma ) : 0; // Y''
-	        var orient = scope.screenOrientation ? THREE.Math.degToRad( scope.screenOrientation ) : 0; // O
+	        var alpha = scope.deviceOrientation.alpha ? THREE__namespace.MathUtils.degToRad( scope.deviceOrientation.alpha ) + scope.alphaOffsetAngle : 0; // Z
+	        var beta = scope.deviceOrientation.beta ? THREE__namespace.MathUtils.degToRad( scope.deviceOrientation.beta ) : 0; // X'
+	        var gamma = scope.deviceOrientation.gamma ? THREE__namespace.MathUtils.degToRad( scope.deviceOrientation.gamma ) : 0; // Y''
+	        var orient = scope.screenOrientation ? THREE__namespace.MathUtils.degToRad( scope.screenOrientation ) : 0; // O
 
 	        setCameraQuaternion( scope.camera.quaternion, alpha, beta, gamma, orient );
 	        scope.alpha = alpha;
@@ -7235,7 +7331,7 @@
 	    this.connect();
 
 	}
-	DeviceOrientationControls.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype), {
+	DeviceOrientationControls.prototype = Object.assign( Object.create( THREE__namespace.EventDispatcher.prototype), {
 
 	    constructor: DeviceOrientationControls
 
@@ -7249,16 +7345,16 @@
 	 */
 	function CardboardEffect ( renderer ) {
 
-	    var _camera = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
+	    var _camera = new THREE__namespace.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
 
-	    var _scene = new THREE.Scene();
+	    var _scene = new THREE__namespace.Scene();
 
-	    var _stereo = new THREE.StereoCamera();
+	    var _stereo = new THREE__namespace.StereoCamera();
 	    _stereo.aspect = 0.5;
 
-	    var _params = { minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter, format: THREE.RGBAFormat };
+	    var _params = { minFilter: THREE__namespace.LinearFilter, magFilter: THREE__namespace.NearestFilter, format: THREE__namespace.RGBAFormat };
 
-	    var _renderTarget = new THREE.WebGLRenderTarget( 512, 512, _params );
+	    var _renderTarget = new THREE__namespace.WebGLRenderTarget( 512, 512, _params );
 	    _renderTarget.scissorTest = true;
 	    _renderTarget.texture.generateMipmaps = false;
 
@@ -7267,9 +7363,9 @@
 	     * https://github.com/borismus/webvr-boilerplate/blob/master/src/distortion/barrel-distortion-fragment.js
 	     */
 
-	    var distortion = new THREE.Vector2( 0.441, 0.156 );
+	    var distortion = new THREE__namespace.Vector2( 0.441, 0.156 );
 
-	    var geometry = new THREE.PlaneBufferGeometry( 1, 1, 10, 20 ).removeAttribute( 'normal' ).toNonIndexed();
+	    var geometry = new THREE__namespace.PlaneGeometry( 1, 1, 10, 20 ).deleteAttribute( 'normal' ).toNonIndexed();
 
 	    var positions = geometry.attributes.position.array;
 	    var uvs = geometry.attributes.uv.array;
@@ -7286,7 +7382,7 @@
 	    uvs2.set( uvs );
 	    uvs2.set( uvs, uvs.length );
 
-	    var vector = new THREE.Vector2();
+	    var vector = new THREE__namespace.Vector2();
 	    var length = positions.length / 3;
 
 	    for ( var i = 0, l = positions2.length / 3; i < l; i ++ ) {
@@ -7311,8 +7407,8 @@
 
 	    //
 
-	    var material = new THREE.MeshBasicMaterial( { map: _renderTarget.texture } );
-	    var mesh = new THREE.Mesh( geometry, material );
+	    var material = new THREE__namespace.MeshBasicMaterial( { map: _renderTarget.texture } );
+	    var mesh = new THREE__namespace.Mesh( geometry, material );
 	    _scene.add( mesh );
 
 	    //
@@ -7368,9 +7464,9 @@
 	 */
 	const StereoEffect = function ( renderer ) {
 
-	    var _stereo = new THREE.StereoCamera();
+	    var _stereo = new THREE__namespace.StereoCamera();
 	    _stereo.aspect = 0.5;
-	    var size = new THREE.Vector2();
+	    var size = new THREE__namespace.Vector2();
 
 	    this.setEyeSeparation = function ( eyeSep ) {
 
@@ -7489,10 +7585,10 @@
 
 	    this.container = container;
 
-	    this.camera = options.camera || new THREE.PerspectiveCamera( this.options.cameraFov, this.container.clientWidth / this.container.clientHeight, 1, 10000 );
-	    this.scene = options.scene || new THREE.Scene();
-	    this.renderer = options.renderer || new THREE.WebGLRenderer( { alpha: true, antialias: false } );
-	    this.sceneReticle = new THREE.Scene();
+	    this.camera = options.camera || new THREE__namespace.PerspectiveCamera( this.options.cameraFov, this.container.clientWidth / this.container.clientHeight, 1, 10000 );
+	    this.scene = options.scene || new THREE__namespace.Scene();
+	    this.renderer = options.renderer || new THREE__namespace.WebGLRenderer( { alpha: true, antialias: false } );
+	    this.sceneReticle = new THREE__namespace.Scene();
 
 	    this.viewIndicatorSize = this.options.indicatorSize;
 
@@ -7509,14 +7605,14 @@
 	    this.pressEntityObject = null;
 	    this.pressObject = null;
 
-	    this.raycaster = new THREE.Raycaster();
-	    this.raycasterPoint = new THREE.Vector2();
-	    this.userMouse = new THREE.Vector2();
+	    this.raycaster = new THREE__namespace.Raycaster();
+	    this.raycasterPoint = new THREE__namespace.Vector2();
+	    this.userMouse = new THREE__namespace.Vector2();
 	    this.updateCallbacks = [];
 	    this.requestAnimationId = null;
 
-	    this.cameraFrustum = new THREE.Frustum();
-	    this.cameraViewProjectionMatrix = new THREE.Matrix4();
+	    this.cameraFrustum = new THREE__namespace.Frustum();
+	    this.cameraViewProjectionMatrix = new THREE__namespace.Matrix4();
 
 	    this.autoRotateRequestId = null;
 
@@ -7540,8 +7636,8 @@
 	    this.OUTPUT_INFOSPOT = false;
 
 	    // Animations
-	    this.tweenLeftAnimation = new Tween.Tween();
-	    this.tweenUpAnimation = new Tween.Tween();
+	    this.tweenLeftAnimation = new TWEEN.Tween();
+	    this.tweenUpAnimation = new TWEEN.Tween();
 
 	    // Renderer
 	    this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -7632,7 +7728,7 @@
 	    this.animate.call( this );
 
 	}
-	Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype ), {
+	Viewer.prototype = Object.assign( Object.create( THREE__namespace.EventDispatcher.prototype ), {
 
 	    constructor: Viewer,
 
@@ -8388,10 +8484,6 @@
 	            this.camera.position.copy( this.panorama.position );
 
 	            break;
-
-	        default:
-
-	            break;
 	        }
 
 	        this.control.update();
@@ -8510,16 +8602,16 @@
 	        }
 
 	        duration = duration !== undefined ? duration : 1000;
-	        easing = easing || Tween.Easing.Exponential.Out;
+	        easing = easing || TWEEN.Easing.Exponential.Out;
 
 	        let scope, ha, va, chv, cvv, hv, vv, vptc, ov, nv;
 
 	        scope = this;
 
-	        chv = this.camera.getWorldDirection( new THREE.Vector3() );
+	        chv = this.camera.getWorldDirection( new THREE__namespace.Vector3() );
 	        cvv = chv.clone();
 
-	        vptc = this.panorama.getWorldPosition( new THREE.Vector3() ).sub( this.camera.getWorldPosition( new THREE.Vector3() ) );
+	        vptc = this.panorama.getWorldPosition( new THREE__namespace.Vector3() ).sub( this.camera.getWorldPosition( new THREE__namespace.Vector3() ) );
 
 	        hv = vector.clone();
 	        // Scale effect
@@ -8542,7 +8634,7 @@
 	        this.tweenLeftAnimation.stop();
 	        this.tweenUpAnimation.stop();
 
-	        this.tweenLeftAnimation = new Tween.Tween( ov )
+	        this.tweenLeftAnimation = new TWEEN.Tween( ov )
 	            .to( { left: ha }, duration )
 	            .easing( easing )
 	            .onUpdate(function(ov){
@@ -8551,7 +8643,7 @@
 	            })
 	            .start();
 
-	        this.tweenUpAnimation = new Tween.Tween( ov )
+	        this.tweenUpAnimation = new TWEEN.Tween( ov )
 	            .to( { up: va }, duration )
 	            .easing( easing )
 	            .onUpdate(function(ov){
@@ -8585,13 +8677,13 @@
 
 	        if ( isUnderScalePlaceHolder ) {
 
-	            const invertXVector = new THREE.Vector3( -1, 1, 1 );
+	            const invertXVector = new THREE__namespace.Vector3( -1, 1, 1 );
 
-	            this.tweenControlCenter( object.getWorldPosition( new THREE.Vector3() ).multiply( invertXVector ), duration, easing );
+	            this.tweenControlCenter( object.getWorldPosition( new THREE__namespace.Vector3() ).multiply( invertXVector ), duration, easing );
 
 	        } else {
 
-	            this.tweenControlCenter( object.getWorldPosition( new THREE.Vector3() ), duration, easing );
+	            this.tweenControlCenter( object.getWorldPosition( new THREE__namespace.Vector3() ), duration, easing );
 
 	        }
 
@@ -8699,8 +8791,8 @@
 	        if ( intersects.length > 0 ) {
 
 	            const point = intersects[ 0 ].point.clone();
-	            const converter = new THREE.Vector3( -1, 1, 1 );
-	            const world = this.panorama.getWorldPosition( new THREE.Vector3() );
+	            const converter = new THREE__namespace.Vector3( -1, 1, 1 );
+	            const world = this.panorama.getWorldPosition( new THREE__namespace.Vector3() );
 	            point.sub( world ).multiply( converter );
 
 	            const position = {
@@ -8732,9 +8824,6 @@
 	                this.outputDivElement.textContent = message;
 	                break;
 
-	            default:
-	                break;
-
 	            }
 
 	        }
@@ -8754,13 +8843,22 @@
 	        this.userMouse.x = ( event.clientX >= 0 ) ? event.clientX : event.touches[0].clientX;
 	        this.userMouse.y = ( event.clientY >= 0 ) ? event.clientY : event.touches[0].clientY;
 	        this.userMouse.type = 'mousedown';
-	        this.onTap( event );
+
+	        if ( event.touches && event.touches.length === 1 ) {
+
+	            this.onTap( { clientX: event.touches[0].clientX, clientY: event.touches[0].clientY } );
+
+	        } else {
+
+	            this.onTap( event );
+
+	        }
 
 	    },
 
 	    /**
 	     * On mouse move
-	     * @param {MouseEvent} event 
+	     * @param {MouseEvent} event
 	     * @memberOf Viewer
 	     * @instance
 	     */
@@ -8768,7 +8866,16 @@
 
 	        event.preventDefault();
 	        this.userMouse.type = 'mousemove';
-	        this.onTap( event );
+
+	        if ( event.touches && event.touches.length === 1 ) {
+
+	            this.onTap( { clientX: event.touches[0].clientX, clientY: event.touches[0].clientY } );
+
+	        } else {
+
+	            this.onTap( event );
+
+	        }
 
 	    },
 
@@ -9160,7 +9267,7 @@
 	     */
 	    update: function () {
 
-	        Tween.update();
+	        TWEEN.update();
 
 	        this.updateCallbacks.forEach( function( callback ){ callback(); } );
 
@@ -9174,7 +9281,7 @@
 						|| (child.element.left && child.element.left.style.display !== 'none')
 						|| (child.element.right && child.element.right.style.display !== 'none') ) ) {
 	                if ( this.checkSpriteInViewport( child ) ) {
-	                    const { x, y } = this.getScreenVector( child.getWorldPosition( new THREE.Vector3() ) );
+	                    const { x, y } = this.getScreenVector( child.getWorldPosition( new THREE__namespace.Vector3() ) );
 	                    child.translateElement( x, y );
 	                } else {
 	                    child.onDismiss();
@@ -9385,9 +9492,9 @@
 	        }
 
 	        // clear cache
-	        if ( THREE.Cache && THREE.Cache.enabled ) {
+	        if ( THREE__namespace.Cache && THREE__namespace.Cache.enabled ) {
 
-	            THREE.Cache.clear();
+	            THREE__namespace.Cache.clear();
 
 	        }
 
@@ -9474,8 +9581,8 @@
 	            const setIndicatorD = function () {
 
 	                scope.radius = scope.viewIndicatorSize * 0.225;
-	                scope.currentPanoAngle = scope.camera.rotation.y - THREE.Math.degToRad( 90 );
-	                scope.fovAngle = THREE.Math.degToRad( scope.camera.fov ) ;
+	                scope.currentPanoAngle = scope.camera.rotation.y - THREE__namespace.MathUtils.degToRad( 90 );
+	                scope.fovAngle = THREE__namespace.MathUtils.degToRad( scope.camera.fov ) ;
 	                scope.leftAngle = -scope.currentPanoAngle - scope.fovAngle / 2;
 	                scope.rightAngle = -scope.currentPanoAngle + scope.fovAngle / 2;
 	                scope.leftX = scope.radius * Math.cos( scope.leftAngle );
@@ -9545,13 +9652,13 @@
 	     */
 	    clearAllCache: function () {
 
-	        THREE.Cache.clear();
+	        THREE__namespace.Cache.clear();
 
 	    }
 
 	} );
 
-	if ( THREE.REVISION != THREE_REVISION ) {
+	if ( THREE__namespace.REVISION != THREE_REVISION ) {
 
 	    console.warn( `three.js version is not matched. Please consider use the target revision ${THREE_REVISION}` );
 
@@ -9562,10 +9669,11 @@
 	 * @author pchen66
 	 * @namespace PANOLENS
 	 */
-	window.TWEEN = Tween;
+	window.TWEEN = TWEEN;
 
 	exports.BasicPanorama = BasicPanorama;
 	exports.CONTROLS = CONTROLS;
+	exports.CONTROL_BUTTONS = CONTROL_BUTTONS;
 	exports.CameraPanorama = CameraPanorama;
 	exports.CubePanorama = CubePanorama;
 	exports.CubeTextureLoader = CubeTextureLoader;
@@ -9579,6 +9687,7 @@
 	exports.LittlePlanet = LittlePlanet;
 	exports.MODES = MODES;
 	exports.Media = Media;
+	exports.OUTPUTS = OUTPUTS;
 	exports.Panorama = Panorama;
 	exports.REVISION = REVISION;
 	exports.Reticle = Reticle;
@@ -9589,7 +9698,5 @@
 	exports.VideoPanorama = VideoPanorama;
 	exports.Viewer = Viewer;
 	exports.Widget = Widget;
-
-	Object.defineProperty(exports, '__esModule', { value: true });
 
 }));

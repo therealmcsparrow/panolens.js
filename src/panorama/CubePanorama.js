@@ -11,7 +11,7 @@ function CubePanorama ( images = [] ){
 
     const edgeLength = 10000;
     const shader = Object.assign( {}, THREE.ShaderLib[ 'cube' ] );
-    const geometry = new THREE.BoxBufferGeometry( edgeLength, edgeLength, edgeLength );
+    const geometry = new THREE.BoxGeometry( edgeLength, edgeLength, edgeLength );
     const material = new THREE.ShaderMaterial( {
 
         fragmentShader: shader.fragmentShader,
@@ -41,13 +41,13 @@ CubePanorama.prototype = Object.assign( Object.create( Panorama.prototype ), {
      */
     load: function () {
 
-        CubeTextureLoader.load( 	
+        CubeTextureLoader.load(
 
-            this.images, 
+            this.images,
 
-            this.onLoad.bind( this ), 
-            this.onProgress.bind( this ), 
-            this.onError.bind( this ) 
+            this.onLoad.bind( this ),
+            this.onProgress.bind( this ),
+            this.onError.bind( this )
 
         );
 
@@ -60,8 +60,8 @@ CubePanorama.prototype = Object.assign( Object.create( Panorama.prototype ), {
      * @instance
      */
     onLoad: function ( texture ) {
-		
-        this.material.uniforms[ 'tCube' ].value = texture;
+
+        this.material.uniforms[ 'envMap' ].value = texture;
 
         Panorama.prototype.onLoad.call( this );
 
@@ -72,9 +72,9 @@ CubePanorama.prototype = Object.assign( Object.create( Panorama.prototype ), {
      * @memberOf CubePanorama
      * @instance
      */
-    dispose: function () {	
+    dispose: function () {
 
-        const { value } = this.material.uniforms.tCube;
+        const { value } = this.material.uniforms.envMap;
 
         this.images.forEach( ( image ) => { THREE.Cache.remove( image ); } );
 

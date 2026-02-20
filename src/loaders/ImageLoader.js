@@ -88,7 +88,7 @@ const ImageLoader = {
 
         request = new window.XMLHttpRequest();
         request.open('GET', url, true);
-        if (process.env.npm_lifecycle_event !== 'test') {
+        if (typeof process === 'undefined' || process.env.npm_lifecycle_event !== 'test') {
             /* istanbul ignore next */
             request.onreadystatechange = function () {
                 if (this.readyState === 4 && this.status >= 400) {

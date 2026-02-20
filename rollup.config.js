@@ -1,7 +1,7 @@
-import resolve from 'rollup-plugin-node-resolve';
-import json from 'rollup-plugin-json';
-import commonjs from 'rollup-plugin-commonjs'
-import inject from 'rollup-plugin-inject';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import json from '@rollup/plugin-json';
+import commonjs from '@rollup/plugin-commonjs';
+import inject from '@rollup/plugin-inject';
 
 export default {
     external: ['three'],
@@ -21,7 +21,7 @@ export default {
         }
     ],
     plugins: [
-        resolve(),
+        nodeResolve(),
         commonjs(),
         json({
             include: 'package.json',

@@ -70,7 +70,7 @@ LittlePlanet.prototype = Object.assign( Object.create( ImagePanorama.prototype )
 
     createGeometry: function ( size, ratio ) {
 
-        return new THREE.PlaneBufferGeometry( size, size * ratio );
+        return new THREE.PlaneGeometry( size, size * ratio );
 
     },
 
@@ -167,8 +167,8 @@ LittlePlanet.prototype = Object.assign( Object.create( ImagePanorama.prototype )
             const x = ( event.clientX >= 0 ) ? event.clientX : event.touches[ 0 ].clientX;
             const y = ( event.clientY >= 0 ) ? event.clientY : event.touches[ 0 ].clientY;
 
-            const angleX = THREE.Math.degToRad( x - this.userMouse.x ) * 0.4;
-            const angleY = THREE.Math.degToRad( y - this.userMouse.y ) * 0.4;
+            const angleX = THREE.MathUtils.degToRad( x - this.userMouse.x ) * 0.4;
+            const angleY = THREE.MathUtils.degToRad( y - this.userMouse.y ) * 0.4;
 
             if ( this.dragging ) {
                 this.quatA.setFromAxisAngle( this.vectorY, angleX );

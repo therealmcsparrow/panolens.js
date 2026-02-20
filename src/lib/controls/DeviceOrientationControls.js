@@ -4,8 +4,8 @@ import * as THREE from 'three';
  * @classdesc Device Orientation Control
  * @constructor
  * @external DeviceOrientationControls
- * @param {THREE.Camera} camera 
- * @param {HTMLElement} domElement 
+ * @param {THREE.Camera} camera
+ * @param {HTMLElement} domElement
  */
 function DeviceOrientationControls ( camera, domElement ) {
 
@@ -28,7 +28,6 @@ function DeviceOrientationControls ( camera, domElement ) {
 
     this.alpha = 0;
     this.alphaOffsetAngle = 0;
-
 
     var onDeviceOrientationChangeEvent = function( event ) {
 
@@ -57,8 +56,8 @@ function DeviceOrientationControls ( camera, domElement ) {
         event.preventDefault();
         event.stopPropagation();
 
-        rotY += THREE.Math.degToRad( ( event.touches[ 0 ].pageX - tempX ) / 4 );
-        rotX += THREE.Math.degToRad( ( tempY - event.touches[ 0 ].pageY ) / 4 );
+        rotY += THREE.MathUtils.degToRad( ( event.touches[ 0 ].pageX - tempX ) / 4 );
+        rotX += THREE.MathUtils.degToRad( ( tempY - event.touches[ 0 ].pageY ) / 4 );
 
         scope.updateAlphaOffsetAngle( rotY );
 
@@ -118,18 +117,50 @@ function DeviceOrientationControls ( camera, domElement ) {
 
     };
 
+    // Store bound update handler for proper cleanup
+    var boundUpdate = this.update.bind( this );
+
     this.connect = function() {
 
         onScreenOrientationChangeEvent(); // run once on load
 
-        window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
-        window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, { passive: true } );
-        window.addEventListener( 'deviceorientation', this.update.bind( this ), { passive: true } );
+        var startListening = function () {
 
-        scope.domElement.addEventListener( 'touchstart', onTouchStartEvent, { passive: false } );
-        scope.domElement.addEventListener( 'touchmove', onTouchMoveEvent, { passive: false } );
+            window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
+            window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, { passive: true } );
+            window.addEventListener( 'deviceorientation', boundUpdate, { passive: true } );
 
-        scope.enabled = true;
+            scope.domElement.addEventListener( 'touchstart', onTouchStartEvent, { passive: false } );
+            scope.domElement.addEventListener( 'touchmove', onTouchMoveEvent, { passive: false } );
+
+            scope.enabled = true;
+
+        };
+
+        // Request permission on iOS 13+ and other browsers that require it
+        if ( typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function' ) {
+
+            DeviceOrientationEvent.requestPermission()
+                .then( function ( response ) {
+
+                    if ( response === 'granted' ) {
+
+                        startListening();
+
+                    }
+
+                } )
+                .catch( function () {
+
+                    console.warn( 'DeviceOrientationControls: Unable to use DeviceOrientation API' );
+
+                } );
+
+        } else {
+
+            startListening();
+
+        }
 
     };
 
@@ -137,7 +168,7 @@ function DeviceOrientationControls ( camera, domElement ) {
 
         window.removeEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
         window.removeEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
-        window.removeEventListener( 'deviceorientation', this.update.bind( this ), false );
+        window.removeEventListener( 'deviceorientation', boundUpdate, false );
 
         scope.domElement.removeEventListener( 'touchstart', onTouchStartEvent, false );
         scope.domElement.removeEventListener( 'touchmove', onTouchMoveEvent, false );
@@ -150,10 +181,10 @@ function DeviceOrientationControls ( camera, domElement ) {
 
         if ( scope.enabled === false ) return;
 
-        var alpha = scope.deviceOrientation.alpha ? THREE.Math.degToRad( scope.deviceOrientation.alpha ) + scope.alphaOffsetAngle : 0; // Z
-        var beta = scope.deviceOrientation.beta ? THREE.Math.degToRad( scope.deviceOrientation.beta ) : 0; // X'
-        var gamma = scope.deviceOrientation.gamma ? THREE.Math.degToRad( scope.deviceOrientation.gamma ) : 0; // Y''
-        var orient = scope.screenOrientation ? THREE.Math.degToRad( scope.screenOrientation ) : 0; // O
+        var alpha = scope.deviceOrientation.alpha ? THREE.MathUtils.degToRad( scope.deviceOrientation.alpha ) + scope.alphaOffsetAngle : 0; // Z
+        var beta = scope.deviceOrientation.beta ? THREE.MathUtils.degToRad( scope.deviceOrientation.beta ) : 0; // X'
+        var gamma = scope.deviceOrientation.gamma ? THREE.MathUtils.degToRad( scope.deviceOrientation.gamma ) : 0; // Y''
+        var orient = scope.screenOrientation ? THREE.MathUtils.degToRad( scope.screenOrientation ) : 0; // O
 
         setCameraQuaternion( scope.camera.quaternion, alpha, beta, gamma, orient );
         scope.alpha = alpha;

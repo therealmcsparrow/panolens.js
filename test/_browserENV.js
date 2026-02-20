@@ -1,11 +1,17 @@
-import browserEnv from 'browser-env';
+import { JSDOM } from 'jsdom';
 import { XMLHttpRequest } from 'xmlhttprequest';
+
+const dom = new JSDOM('', { url: 'http://localhost' });
+global.window = dom.window;
+global.HTMLElement = dom.window.HTMLElement;
+global.HTMLImageElement = dom.window.HTMLImageElement;
+global.HTMLScriptElement = dom.window.HTMLScriptElement;
+global.performance = dom.window.performance;
+global.DOMParser = dom.window.DOMParser;
 
 global.desktopUserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36';
 global.mobileUserAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_1 like Mac OS X) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.0 Mobile/14E304 Safari/602.1';
 global.userAgent = global.desktopUserAgent;
-
-browserEnv(['window', 'HTMLElement', 'HTMLImageElement', 'HTMLScriptElement', 'performance', 'DOMParser']);
 window.requestAnimationFrame = func => { return setTimeout( func, 16.67 ) };
 window.cancelAnimationFrame = id => { clearTimeout( id ) };
 window.Blob = function(){};
