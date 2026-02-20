@@ -61,7 +61,7 @@ test('Buttons Click Events - Fullscreen', t => {
     document.fullscreenEnabled = false;
 });
 
-test.cb('Buttons Click Events - Video Control', t => {
+test('Buttons Click Events - Video Control', t => { return new Promise(resolve => {
     const container = document.createElement( 'div' );
     const dispatchMouseUp = () => { container.dispatchEvent( mouseupEvent ); };
     const dispatchMouseMove = () => { container.dispatchEvent( mousemoveEvent ); };
@@ -83,12 +83,12 @@ test.cb('Buttons Click Events - Video Control', t => {
         dispatchMouseMove();
         window.requestAnimationFrame( () => {
             dispatchMouseUp();
-            t.end();
+            resolve();
         } );
     } );
-});
+}); });
 
-test.cb('Menu Interaction', t => {
+test('Menu Interaction', t => { return new Promise(resolve => {
     const container = document.createElement( 'div' );
     const widget = new Widget( container );
     widget.addControlBar();
@@ -102,9 +102,9 @@ test.cb('Menu Interaction', t => {
     widget.addEventListener( 'panolens-viewer-handler', ({ method, data }) => {
         t.is(method, 'enableControl');
         t.is(data, CONTROLS.DEVICEORIENTATION);
-        t.end();
+        resolve();
     } );
     setTimeout(() => {
         sensorItem.dispatchEvent( clickEvent );
     }, 300);
-});
+}); });

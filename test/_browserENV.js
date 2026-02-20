@@ -6,7 +6,6 @@ global.window = dom.window;
 global.HTMLElement = dom.window.HTMLElement;
 global.HTMLImageElement = dom.window.HTMLImageElement;
 global.HTMLScriptElement = dom.window.HTMLScriptElement;
-global.performance = dom.window.performance;
 global.DOMParser = dom.window.DOMParser;
 
 global.desktopUserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.80 Safari/537.36';
@@ -941,12 +940,47 @@ const customWebGLContext = function () {
 	this.getBufferParameter = function () {};
 	this.getContextAttributes = function () {};
 	this.getError = function () {};
-	this.getExtension = function () {};
+	this.getExtension = function ( name ) {
+		const extensions = {
+			'EXT_texture_filter_anisotropic': { TEXTURE_MAX_ANISOTROPY_EXT: 34046, MAX_TEXTURE_MAX_ANISOTROPY_EXT: 34047 },
+			'OES_texture_float': {},
+			'OES_texture_half_float': { HALF_FLOAT_OES: 36193 },
+			'OES_texture_half_float_linear': {},
+			'OES_standard_derivatives': {},
+			'OES_element_index_uint': {},
+			'EXT_blend_minmax': { MIN_EXT: 32775, MAX_EXT: 32776 },
+			'EXT_frag_depth': {},
+			'EXT_shader_texture_lod': {},
+			'WEBGL_depth_texture': { UNSIGNED_INT_24_8_WEBGL: 34042 },
+			'WEBGL_draw_buffers': {},
+			'WEBGL_lose_context': { loseContext: function(){}, restoreContext: function(){} },
+			'OES_vertex_array_object': { createVertexArrayOES: function(){}, deleteVertexArrayOES: function(){}, isVertexArrayOES: function(){}, bindVertexArrayOES: function(){} }
+		};
+		return extensions[ name ] || null;
+	};
 	this.getFramebufferAttachmentParameter = function () {};
 
 	var parameters = {};
-	parameters[ this.VERSION ] = "Custom";
+	parameters[ this.VERSION ] = "WebGL 1.0";
+	parameters[ this.SHADING_LANGUAGE_VERSION ] = "WebGL GLSL ES 1.0";
+	parameters[ this.VENDOR ] = "Mock";
+	parameters[ this.RENDERER ] = "Mock WebGL";
 	parameters[ this.MAX_TEXTURE_SIZE ] = 4096;
+	parameters[ this.MAX_CUBE_MAP_TEXTURE_SIZE ] = 4096;
+	parameters[ this.MAX_RENDERBUFFER_SIZE ] = 4096;
+	parameters[ this.MAX_TEXTURE_IMAGE_UNITS ] = 16;
+	parameters[ this.MAX_VERTEX_TEXTURE_IMAGE_UNITS ] = 16;
+	parameters[ this.MAX_COMBINED_TEXTURE_IMAGE_UNITS ] = 32;
+	parameters[ this.MAX_VERTEX_ATTRIBS ] = 16;
+	parameters[ this.MAX_VERTEX_UNIFORM_VECTORS ] = 256;
+	parameters[ this.MAX_VARYING_VECTORS ] = 30;
+	parameters[ this.MAX_FRAGMENT_UNIFORM_VECTORS ] = 256;
+	parameters[ this.MAX_VIEWPORT_DIMS ] = [4096, 4096];
+	parameters[ this.ALIASED_POINT_SIZE_RANGE ] = [1, 256];
+	parameters[ this.ALIASED_LINE_WIDTH_RANGE ] = [1, 1];
+	parameters[ this.SAMPLES ] = 4;
+	parameters[ this.DEPTH_BITS ] = 24;
+	parameters[ this.STENCIL_BITS ] = 8;
 	this.getParameter = function ( parameterID ) {
 
 		return parameters[ parameterID ];
@@ -964,7 +998,7 @@ const customWebGLContext = function () {
 
 	};
 	this.getShaderSource = function () {};
-	this.getSupportedExtensions = function () {};
+	this.getSupportedExtensions = function () { return ['EXT_texture_filter_anisotropic', 'OES_texture_float', 'OES_texture_half_float', 'OES_texture_half_float_linear', 'OES_standard_derivatives', 'OES_element_index_uint', 'EXT_blend_minmax', 'EXT_frag_depth', 'EXT_shader_texture_lod', 'WEBGL_depth_texture', 'WEBGL_draw_buffers', 'OES_vertex_array_object']; };
 	this.getTexParameter = function () {};
 	this.getUniform = function () {};
 	this.getUniformLocation = function () {};

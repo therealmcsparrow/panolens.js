@@ -3,13 +3,13 @@ import { GoogleStreetviewPanorama } from '../../../src/panorama/GoogleStreetview
 
 const panoId = 'JmSoPsBPhqWvaBmOqfFzgA';
 
-test.cb('Get Photos From Street View', t => {
+test('Get Photos From Street View', t => { return new Promise(resolve => {
     const panorama = new GoogleStreetviewPanorama( panoId );
     panorama.addEventListener( 'load', () => {
-        t.end();
+        resolve();
     } );
     panorama.load();
-});
+}); });
 
 test('Reset', t => {
     const panorama = new GoogleStreetviewPanorama( panoId );

@@ -2,28 +2,28 @@ import test from 'ava';
 import * as THREE from 'three';
 import { Reticle } from '../../../src/interface/Reticle';
 
-test.cb('Reticle Lifecycle Event - Enabled autoSelect', t => {
+test('Reticle Lifecycle Event - Enabled autoSelect', t => { return new Promise(resolve => {
     t.plan(5);
     const reticle = new Reticle( 0xff0000 );
     const callback = () => t.pass();
     reticle.addEventListener( 'reticle-start', callback );
     reticle.addEventListener( 'reticle-end', callback );
     reticle.addEventListener( 'reticle-ripple-start', callback );
-    reticle.addEventListener( 'reticle-ripple-end', () => { callback(); t.end(); } );
+    reticle.addEventListener( 'reticle-ripple-end', () => { callback(); resolve(); } );
     reticle.start( callback );
-});
+}); });
 
-test.cb('Reticle Lifecycle Event - Disabled autoSelect', t => {
+test('Reticle Lifecycle Event - Disabled autoSelect', t => { return new Promise(resolve => {
     t.plan(0);
     const reticle = new Reticle( 0x0000ff, false );
     const callback = () => t.pass();
     reticle.addEventListener( 'reticle-start', callback );
     reticle.addEventListener( 'reticle-end', callback );
     reticle.addEventListener( 'reticle-ripple-start', callback );
-    reticle.addEventListener( 'reticle-ripple-end', () => { callback(); t.end(); } );
+    reticle.addEventListener( 'reticle-ripple-end', () => { callback(); resolve(); } );
     reticle.start( callback );
-    setTimeout( () => t.end(), reticle.dwellTime );
-});
+    setTimeout( () => resolve(), reticle.dwellTime );
+}); });
 
 test('Show and Hide', t => {
     const reticle = new Reticle( 0x00ffff );

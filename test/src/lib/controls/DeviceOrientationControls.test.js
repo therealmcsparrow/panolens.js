@@ -47,7 +47,7 @@ const start = ( element, onComplete = () => {} ) => {
 
 };
 
-test.cb('Touch Start and Move Events', t => {
+test('Touch Start and Move Events', t => { return new Promise(resolve => {
     const camera = new THREE.PerspectiveCamera();
     const container = document.createElement( 'div' );
     const control = new DeviceOrientationControls( camera, container );
@@ -55,9 +55,9 @@ test.cb('Touch Start and Move Events', t => {
         control.enabled = false;
         control.update();
         control.dispose();
-        t.end();
+        resolve();
     } );
-});
+}); });
 
 test('Window Orientation Change Event', t => {
     const camera = new THREE.PerspectiveCamera();

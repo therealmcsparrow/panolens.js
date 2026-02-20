@@ -1,5 +1,7 @@
 import test from 'ava';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 import * as THREE from 'three';
 import TWEEN from '@tweenjs/tween.js';
 import { Viewer } from '../../../src/viewer/Viewer';
@@ -111,7 +113,7 @@ test('Initialize Viewer with Container', t => {
 
 });
 
-test.cb('Panorama Enter and Leave', t => {
+test('Panorama Enter and Leave', t => { return new Promise(resolve => {
 
     t.plan(3);
     const pass = () => t.pass();
@@ -124,14 +126,14 @@ test.cb('Panorama Enter and Leave', t => {
 
     panorama1.addEventListener( 'enter', pass ); // yes
     panorama1.addEventListener( 'leave', pass ); // yes
-    panorama1.addEventListener( 'leave-complete', () => t.end() )
+    panorama1.addEventListener( 'leave-complete', () => resolve() )
     panorama2.addEventListener( 'enter', pass ); // yes
     panorama2.addEventListener( 'leave', pass ); // no
     viewer.add( panorama1, panorama2 );
 
     setTimeout( advance, 2000 );
 
-});
+}); });
 
 test('Validate Non-Default Options', t => {
     const viewer = new Viewer( {
@@ -160,7 +162,7 @@ test('Validate Non-Default Options', t => {
     t.false(viewer.OrbitControls.autoRotate);
 });
 
-test.cb('Mouse Down, Move and Up', t => {
+test('Mouse Down, Move and Up', t => { return new Promise(resolve => {
 
     const viewer = new Viewer( { autoRotate: true, autoRotateActivationDuration: 50 } );
     const panorama = new ImagePanorama( cabinImageURL );
@@ -168,12 +170,12 @@ test.cb('Mouse Down, Move and Up', t => {
     viewer.add( panorama );
 
     t.context.viewer = viewer;
-    t.context.end = () => t.end();
+    t.context.end = () => resolve();
     t.context.start();
 
-});
+}); });
 
-test.cb('Infospot with mouse events', t => {
+test('Infospot with mouse events', t => { return new Promise(resolve => {
     
     const viewer = new Viewer();
     const panorama = new ImagePanorama( cabinImageURL );
@@ -183,13 +185,13 @@ test.cb('Infospot with mouse events', t => {
     viewer.add( panorama );
 
     t.context.viewer = viewer;
-    t.context.end = () => t.end();
+    t.context.end = () => resolve();
     t.context.start();
 
-});
+}); });
 
 
-test.cb('Output positions with mouse events - console', t => {
+test('Output positions with mouse events - console', t => { return new Promise(resolve => {
     
     const viewer = new Viewer( { output: 'console' } );
     const panorama = new ImagePanorama( cabinImageURL );
@@ -199,15 +201,15 @@ test.cb('Output positions with mouse events - console', t => {
     t.context.viewer = viewer;
     t.context.end = () => {
         window.dispatchEvent( keyboardUpEvent );
-        t.end();
+        resolve();
     };
     t.context.start();
 
     window.dispatchEvent( keyboardDownEvent );
 
-});
+}); });
 
-test.cb('Output positions with mouse events - event', t => {
+test('Output positions with mouse events - event', t => { return new Promise(resolve => {
 
     const viewer = new Viewer( { output: 'event' } );
     const panorama = new ImagePanorama( cabinImageURL );
@@ -217,15 +219,15 @@ test.cb('Output positions with mouse events - event', t => {
     t.context.viewer = viewer;
     t.context.end = () => {
         window.dispatchEvent( keyboardUpEvent );
-        t.end();
+        resolve();
     };
     t.context.start();
 
     window.dispatchEvent( keyboardDownEvent );
 
-});
+}); });
 
-test.cb('Output positions with mouse events - overlay', t => {
+test('Output positions with mouse events - overlay', t => { return new Promise(resolve => {
     
     const viewer = new Viewer( { output: 'overlay' } );
     const panorama = new ImagePanorama( cabinImageURL );
@@ -235,12 +237,12 @@ test.cb('Output positions with mouse events - overlay', t => {
     t.context.viewer = viewer;
     t.context.end = () => {
         window.dispatchEvent( keyboardUpEvent );
-        t.end();
+        resolve();
     };
     t.context.start();
 
     window.dispatchEvent( keyboardDownEvent );
-});
+}); });
 
 test('Enable and Disable Controls', t => {
     
@@ -277,7 +279,7 @@ test('Enable and Disable Effects', t => {
 
 });
 
-test.cb('Infospot Focus', t => {
+test('Infospot Focus', t => { return new Promise(resolve => {
     
     const viewer = new Viewer( { enableReticle: true, dwellTime: 60 } );
     const panorama = new ImagePanorama( cabinImageURL );
@@ -287,7 +289,7 @@ test.cb('Infospot Focus', t => {
     infospot.addHoverText( 'panolens' );
     infospot.addEventListener( 'click', () => {
         infospot.focus( 20, TWEEN.Easing.Exponential.Out );
-        t.end();
+        resolve();
     } );
 
     panorama.add( infospot );
@@ -295,9 +297,9 @@ test.cb('Infospot Focus', t => {
 
     t.context.viewer = viewer;
     t.context.start();
-});
+}); });
 
-test.cb('Add and Remove Panoramas with Window Resize', t => {
+test('Add and Remove Panoramas with Window Resize', t => { return new Promise(resolve => {
 
     const viewer = new Viewer( { enableReticle: true, dwellTime: 60 } );
     const panorama = new Panorama();
@@ -333,12 +335,12 @@ test.cb('Add and Remove Panoramas with Window Resize', t => {
         t.falsy(viewer.widget);
         t.falsy(image.geometry);
         t.falsy(image.material);
-        t.end();
+        resolve();
 
     }, 5000 );
 
 
-});
+}); });
 
 test('Tween control center by object', t => {
 

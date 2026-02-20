@@ -1,17 +1,19 @@
 import test from 'ava';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 import { VideoPanorama } from '../../../src/panorama/VideoPanorama';
 
 const localImageFolder = '../../../example/asset/textures/video';
 const videoURL = join( __dirname, localImageFolder, '1941-battle-low.mp4' );
 
-test.cb('Load Event', t => {
+test('Load Event', t => { return new Promise(resolve => {
     const panorama = new VideoPanorama( videoURL );
-    panorama.addEventListener( 'load', () => t.end() );
+    panorama.addEventListener( 'load', () => resolve() );
     panorama.load();
-});
+}); });
 
-test.cb('Video Play and Pause', t => {
+test('Video Play and Pause', t => { return new Promise(resolve => {
     const panorama = new VideoPanorama( videoURL );
     panorama.addEventListener( 'load', () => {
         const element = panorama.getVideoElement();
@@ -29,24 +31,24 @@ test.cb('Video Play and Pause', t => {
         t.false(panorama.isVideoPaused());
         panorama.resetVideo();
         t.is(element.currentTime, 0);
-        t.end();
+        resolve();
     } );
     panorama.load();
-});
+}); });
 
-test.cb('Video AutoPlay', t => {
+test('Video AutoPlay', t => { return new Promise(resolve => {
     const panorama = new VideoPanorama( videoURL, { autoplay: true } );
     panorama.addEventListener( 'load', () => {
         const percentage = 0.7;
         panorama.setVideoCurrentTime( { percentage } );
         panorama.resumeVideoProgress();
         t.false(panorama.isVideoPaused());
-        t.end();
+        resolve();
     } );
     panorama.load();
-});
+}); });
 
-test.cb('Video Mute and Unmute', t => {
+test('Video Mute and Unmute', t => { return new Promise(resolve => {
     const panorama = new VideoPanorama( videoURL );
     panorama.addEventListener( 'load', () => {
         t.true(panorama.isVideoMuted());
@@ -54,18 +56,18 @@ test.cb('Video Mute and Unmute', t => {
         t.false(panorama.isVideoMuted());
         panorama.muteVideo();
         t.true(panorama.isVideoMuted());
-        t.end();
+        resolve();
     } );
     panorama.load();
-});
+}); });
 
-test.cb('Preloaded Video', t => {
+test('Preloaded Video', t => { return new Promise(resolve => {
     const videoElement = document.createElement( 'video' );
     videoElement.readyState = 3;
     const panorama = new VideoPanorama( videoURL, { videoElement } );
-    panorama.addEventListener( 'load', () => t.end() );
+    panorama.addEventListener( 'load', () => resolve() );
     panorama.load();
-});
+}); });
 
 test('Load Video on Mobile Browser with autoplay and muted', t => {
     const videoElement = document.createElement( 'video' );
@@ -88,17 +90,17 @@ test('Load Video on Mobile Browser without autoplay or muted', t => {
     global.userAgent = global.desktopUserAgent;
 });
 
-test.cb('Video Non Loopable Video', t => {
+test('Video Non Loopable Video', t => { return new Promise(resolve => {
     const panorama = new VideoPanorama( videoURL, { loop: false } );
 
     panorama.addEventListener( 'load', () => {
         panorama.playVideo();
         setTimeout( ()=> {
-            t.end();
+            resolve();
         }, 5000 )
     } );
     panorama.load();
-});
+}); });
 
 test('Set Empty Video Texture', t => {
     const panorama = new VideoPanorama( videoURL );
@@ -106,25 +108,25 @@ test('Set Empty Video Texture', t => {
     t.falsy(panorama.material.map);
 });
 
-test.cb('Reset', t => {
+test('Reset', t => { return new Promise(resolve => {
     const panorama = new VideoPanorama( videoURL );
     panorama.addEventListener( 'load', () => {
         panorama.reset();
         t.falsy(panorama.getVideoElement());
         panorama.dispatchEvent( { type: 'video-toggle' } );
-        t.end();
+        resolve();
     } );
     panorama.load();
-});
+}); });
 
-test.cb('Dispose', t => {
+test('Dispose', t => { return new Promise(resolve => {
     const panorama = new VideoPanorama( videoURL );
     panorama.addEventListener( 'load', () => {
         panorama.dispose();
         t.falsy(panorama.geometry);
         t.falsy(panorama.material);
         t.falsy(panorama.parent);
-        t.end();
+        resolve();
     } );
     panorama.load();
-});
+}); });

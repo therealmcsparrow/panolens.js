@@ -64,69 +64,69 @@ const start = ( type = 'touch', element, options = {}, onComplete = () => {} ) =
 
 };
 
-const onComplete = ( control, t ) => {
+const onComplete = ( control, resolve ) => {
 
     return () => {
 
         control.enabled = false;
         control.update();
         control.dispose();
-        t.end();
+        resolve();
 
     };
 
 };
 
-test.cb('Touch Start, Move and End Events - One Finger', t => {
+test('Touch Start, Move and End Events - One Finger', t => { return new Promise(resolve => {
     const camera = new THREE.PerspectiveCamera();
     const container = document.createElement( 'div' );
     const control = new OrbitControls( camera, container );
-    start( 'touch', container, { finger: 1 }, onComplete( control, t ) );
-});
+    start( 'touch', container, { finger: 1 }, onComplete( control, resolve ) );
+}); });
 
-test.cb('Touch Start, Move and End Events - Two Fingers', t => {
+test('Touch Start, Move and End Events - Two Fingers', t => { return new Promise(resolve => {
     const camera = new THREE.PerspectiveCamera();
     const container = document.createElement( 'div' );
     const control = new OrbitControls( camera, container );
-    start( 'touch', container, { finger: 2 }, onComplete( control, t ) );
-});
+    start( 'touch', container, { finger: 2 }, onComplete( control, resolve ) );
+}); });
 
-test.cb('Touch Start, Move and End Events - Three Fingers', t => {
+test('Touch Start, Move and End Events - Three Fingers', t => { return new Promise(resolve => {
     const camera = new THREE.PerspectiveCamera();
     const container = document.createElement( 'div' );
     const control = new OrbitControls( camera, container );
     control.noPan = false;
-    start( 'touch', container, { finger: 3 }, onComplete( control, t ) );
-});
+    start( 'touch', container, { finger: 3 }, onComplete( control, resolve ) );
+}); });
 
-test.cb('Mouse Down, Move and Up Events - ROTATE', t => {
+test('Mouse Down, Move and Up Events - ROTATE', t => { return new Promise(resolve => {
     const camera = new THREE.PerspectiveCamera();
     const container = document.createElement( 'div' );
     const control = new OrbitControls( camera, container );
-    start( 'mouse', container, { button: THREE.MOUSE.LEFT }, onComplete( control, t ) );
-});
+    start( 'mouse', container, { button: THREE.MOUSE.LEFT }, onComplete( control, resolve ) );
+}); });
 
-test.cb('Mouse Down, Move and Up Events - DOLLY IN', t => {
+test('Mouse Down, Move and Up Events - DOLLY IN', t => { return new Promise(resolve => {
     const camera = new THREE.PerspectiveCamera();
     const container = document.createElement( 'div' );
     const control = new OrbitControls( camera, container );
-    start( 'mouse', container, { button: THREE.MOUSE.MIDDLE, scalarY: 1 }, onComplete( control, t ) );
-});
+    start( 'mouse', container, { button: THREE.MOUSE.MIDDLE, scalarY: 1 }, onComplete( control, resolve ) );
+}); });
 
-test.cb('Mouse Down, Move and Up Events - DOLLY OUT', t => {
+test('Mouse Down, Move and Up Events - DOLLY OUT', t => { return new Promise(resolve => {
     const camera = new THREE.PerspectiveCamera();
     const container = document.createElement( 'div' );
     const control = new OrbitControls( camera, container );
-    start( 'mouse', container, { button: THREE.MOUSE.MIDDLE, scalarY: -1 }, onComplete( control, t ) );
-});
+    start( 'mouse', container, { button: THREE.MOUSE.MIDDLE, scalarY: -1 }, onComplete( control, resolve ) );
+}); });
 
-test.cb('Mouse Down, Move and Up Events - PAN', t => {
+test('Mouse Down, Move and Up Events - PAN', t => { return new Promise(resolve => {
     const camera = new THREE.PerspectiveCamera();
     const container = document.createElement( 'div' );
     const control = new OrbitControls( camera, container );
     control.noPan = false;
-    start( 'mouse', container, { button: THREE.MOUSE.RIGHT }, onComplete( control, t ) );
-});
+    start( 'mouse', container, { button: THREE.MOUSE.RIGHT }, onComplete( control, resolve ) );
+}); });
 
 test('Mouse Wheel Event', t => {
     const camera = new THREE.PerspectiveCamera();
@@ -159,28 +159,28 @@ test('Keyboard Event', t => {
     t.pass();
 });
 
-test.cb('OrthoCamera Mouse Down, Move and Up Events - DOLLY IN', t => {
+test('OrthoCamera Mouse Down, Move and Up Events - DOLLY IN', t => { return new Promise(resolve => {
     const camera = new THREE.OrthographicCamera();
     const container = document.createElement( 'div' );
     const control = new OrbitControls( camera, container );
-    start( 'mouse', container, { button: THREE.MOUSE.MIDDLE, scalarY: 1 }, onComplete( control, t ) );
-});
+    start( 'mouse', container, { button: THREE.MOUSE.MIDDLE, scalarY: 1 }, onComplete( control, resolve ) );
+}); });
 
 
-test.cb('OrthoCamera Mouse Down, Move and Up Events - DOLLY OUT', t => {
+test('OrthoCamera Mouse Down, Move and Up Events - DOLLY OUT', t => { return new Promise(resolve => {
     const camera = new THREE.OrthographicCamera();
     const container = document.createElement( 'div' );
     const control = new OrbitControls( camera, container );
-    start( 'mouse', container, { button: THREE.MOUSE.MIDDLE, scalarY: -1 }, onComplete( control, t ) );
-});
+    start( 'mouse', container, { button: THREE.MOUSE.MIDDLE, scalarY: -1 }, onComplete( control, resolve ) );
+}); });
 
-test.cb('OrthoCamera Mouse Down, Move and Up Events - PAN', t => {
+test('OrthoCamera Mouse Down, Move and Up Events - PAN', t => { return new Promise(resolve => {
     const camera = new THREE.OrthographicCamera();
     const container = document.createElement( 'div' );
     const control = new OrbitControls( camera, container );
     control.noPan = false;
-    start( 'mouse', container, { button: THREE.MOUSE.RIGHT }, onComplete( control, t ) );
-});
+    start( 'mouse', container, { button: THREE.MOUSE.RIGHT }, onComplete( control, resolve ) );
+}); });
 
 test('Access Internal Functions', t => {
     const camera = new THREE.PerspectiveCamera();
@@ -197,24 +197,24 @@ test('Access Internal Functions', t => {
     control.getAzimuthalAngle();
 });
 
-test.cb('Mouse Down, Move and Up Events - PAN - not recognized camera', t => {
+test('Mouse Down, Move and Up Events - PAN - not recognized camera', t => { return new Promise(resolve => {
     const camera = new THREE.Camera();
     const control = new OrbitControls( camera );
     control.noPan = false;
     control.pan( 20, 0 );
-    start( 'mouse', document, { button: THREE.MOUSE.RIGHT }, onComplete( control, t ) );
-});
+    start( 'mouse', document, { button: THREE.MOUSE.RIGHT }, onComplete( control, resolve ) );
+}); });
 
 
-test.cb('Mouse Down, Move and Up Events - Dolly In - not recognized camera', t => {
+test('Mouse Down, Move and Up Events - Dolly In - not recognized camera', t => { return new Promise(resolve => {
     const camera = new THREE.Camera();
     const control = new OrbitControls( camera );
     control.dollyIn( 1 );
     control.dollyOut( 1 );
     camera.position.x = 100;
     control.update( true );
-    start( 'mouse', control.domElement, { button: THREE.MOUSE.MIDDLE }, onComplete( control, t ) );
-});
+    start( 'mouse', control.domElement, { button: THREE.MOUSE.MIDDLE }, onComplete( control, resolve ) );
+}); });
 
 test('Mouse Down with different options', t => {
     const camera = new THREE.PerspectiveCamera();

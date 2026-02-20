@@ -5,7 +5,7 @@ import { Media } from '../../../src/media/Media';
 const container = document.createElement( 'div' );
 const scene = new THREE.Scene();
 
-test.cb('Start Streaming', t => {
+test('Start Streaming', t => { return new Promise(resolve => {
     const media = new Media();
     media.setContainer( container );
     media.setScene( scene );
@@ -14,11 +14,11 @@ test.cb('Start Streaming', t => {
         t.truthy(media.stream);
         t.true(media.stream.active);
         media.switchNextVideoDevice();
-        t.end();
+        resolve();
     }, 1000);
-});
+}); });
 
-test.cb( 'Stop Streaming', t => {
+test( 'Stop Streaming', t => { return new Promise(resolve => {
     const media = new Media();
     media.setContainer( container );
     media.setScene( scene );
@@ -26,11 +26,11 @@ test.cb( 'Stop Streaming', t => {
     setTimeout( () => {
         media.stop();
         t.falsy(media.stream);
-        t.end();
+        resolve();
     }, 1000);
-});
+}); });
 
-test.cb('Change Window Size after Start', t => {
+test('Change Window Size after Start', t => { return new Promise(resolve => {
     const media = new Media();
     media.setContainer( container );
     media.setScene( scene );
@@ -45,11 +45,11 @@ test.cb('Change Window Size after Start', t => {
         container.clientHeight = 1920;
         media.onWindowResize();
         t.is(texture.repeat.x, 1);
-        t.end();
+        resolve();
     }, 1000);
-});
+}); });
 
-test.cb('Play and Pause', t => {
+test('Play and Pause', t => { return new Promise(resolve => {
     const media = new Media();
     media.setContainer( container );
     media.setScene( scene );
@@ -59,6 +59,6 @@ test.cb('Play and Pause', t => {
         t.false(media.element.paused);
         media.pauseVideo();
         t.true(media.element.paused);
-        t.end();
+        resolve();
     }, 1000);
-});
+}); });

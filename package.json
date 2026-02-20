@@ -31,8 +31,8 @@
     "start": "npm run dev",
     "docs": "node_modules/.bin/jsdoc -c jsdoc.json -d ./docs",
     "travis": "npm run lint && npm test",
-    "prepublishOnly": "npm run test && npm run build-closure",
-    "preversion": "npm run test",
+    "prepublishOnly": "npm run build",
+    "preversion": "npm run build",
     "version": "npm run build-closure && git add ./build && git commit -m 'Update build' && npm run docs && git add ./docs && git commit -m 'Update docs'"
   },
   "repository": {
@@ -58,6 +58,9 @@
     ],
     "sources": [
       "./src/**/*.js"
+    ],
+    "nodeArguments": [
+      "--loader=./test/_loader.js"
     ],
     "require": [
       "./test/_browserENV.js"

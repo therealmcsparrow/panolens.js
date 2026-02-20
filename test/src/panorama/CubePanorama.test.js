@@ -14,22 +14,22 @@ const images = [
     `${path}nz${format}`
 ];
 
-test.cb('Load Event', t => {
+test('Load Event', t => { return new Promise(resolve => {
     const panorama = new CubePanorama( images );
     panorama.addEventListener( 'load', () => {
-        t.true(panorama.material.uniforms[ 'tCube' ].value instanceof THREE.CubeTexture);
-        t.end();
+        t.true(panorama.material.uniforms[ 'envMap' ].value instanceof THREE.CubeTexture);
+        resolve();
     } );
     panorama.load();
-});
+}); });
 
-test.cb('Dispose', t => {
+test('Dispose', t => { return new Promise(resolve => {
     const panorama = new CubePanorama( images );
     panorama.addEventListener( 'load', () => {
         panorama.dispose();
         t.falsy(panorama.geometry);
         t.falsy(panorama.material);
-        t.end();
+        resolve();
     } );
     panorama.load();
-});
+}); });

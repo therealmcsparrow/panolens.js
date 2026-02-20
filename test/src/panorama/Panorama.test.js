@@ -1,5 +1,7 @@
 import test from 'ava';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 import * as THREE from 'three';
 import { Panorama } from '../../../src/panorama/Panorama';
 import { Infospot } from '../../../src/infospot/Infospot';
@@ -94,7 +96,7 @@ test('Reset Panorama', t => {
     t.is(panorama.children.length, 0 );
 });
 
-test.cb('toggleInfospotVisibility', t => {
+test('toggleInfospotVisibility', t => { return new Promise(resolve => {
     const panorama = new Panorama();
     const infospot = new Infospot();
     const delay = 1000;
@@ -105,9 +107,9 @@ test.cb('toggleInfospotVisibility', t => {
     setTimeout( () => {
         clearInterval(intervalId);
         t.is(infospot.material.opacity, 0);
-        t.end();
+        resolve();
     }, duration + delay );
-});
+}); });
 
 test('Dispose Panorama', t => {
     const panorama = new Panorama();

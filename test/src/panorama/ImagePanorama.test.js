@@ -1,5 +1,7 @@
 import test from 'ava';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 import * as THREE from 'three';
 import { ImagePanorama } from '../../../src/panorama/ImagePanorama';
 
@@ -7,24 +9,24 @@ const localImageFolder = '../../../example/asset/textures/equirectangular';
 const cabinImageURL = join( __dirname, localImageFolder, 'cabin.jpg' );
 const fieldImageURL = join( __dirname, localImageFolder, 'field.jpg' );
 
-test.cb('Load Event', t => {
+test('Load Event', t => { return new Promise(resolve => {
     const panorama = new ImagePanorama( cabinImageURL );
     panorama.addEventListener( 'load', ()=>{
-        t.end();
+        resolve();
     } );
     panorama.load();
-});
+}); });
 
-test.cb('Progress Event', t => {
+test('Progress Event', t => { return new Promise(resolve => {
     const panorama = new ImagePanorama( fieldImageURL );
     panorama.addEventListener( 'progress', ( event ) => {
         const { progress: { loaded, total } } = event;
         t.is(loaded, 1);
         t.is(total, 1);
-        t.end();
+        resolve();
     } );
     panorama.load();
-});
+}); });
 
 test('Load with Empty Sources', t => {
     const panorama = new ImagePanorama();
@@ -48,7 +50,7 @@ test('Reset', t => {
     t.is(panorama.children.length, 0);
 });
 
-test.cb('Dispose', t => {
+test('Dispose', t => { return new Promise(resolve => {
     const panorama = new ImagePanorama( fieldImageURL );
     const object3D = new THREE.Object3D();
     panorama.add( object3D );
@@ -58,8 +60,8 @@ test.cb('Dispose', t => {
         t.is(panorama.geometry, null);
         t.is(panorama.material, null);
         t.is(object3D.parent, null);
-        t.end();
+        resolve();
 
     } );
     panorama.load();
-});
+}); });

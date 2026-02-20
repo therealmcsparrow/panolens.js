@@ -1,5 +1,7 @@
 import test from 'ava';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 import * as THREE from 'three';
 import { LittlePlanet } from '../../../src/panorama/LittlePlanet';
 import { Infospot } from '../../../src/infospot/Infospot';
@@ -77,33 +79,33 @@ test('Reset', t => {
     t.true(panorama.quatSlerp.equals(new THREE.Quaternion(0, 0, 0, 1)));
 });
 
-test.cb('Mouse Down, Move and Up Events', t => {
+test('Mouse Down, Move and Up Events', t => { return new Promise(resolve => {
 
     const panorama = new LittlePlanet( 'image', cabinImageURL );
     const container = document.createElement( 'div' );
     panorama.dispatchEvent( { type: 'panolens-container', container } );
     t.is(panorama.container, container);
     panorama.addEventListener( 'load', () => {
-        start( 'mouse', container, { button: THREE.MOUSE.LEFT }, () => t.end() );
+        start( 'mouse', container, { button: THREE.MOUSE.LEFT }, () => resolve() );
     })
     panorama.load();
 
-} );
+}); } );
 
-test.cb('Touch Start, Move and End Events', t => {
+test('Touch Start, Move and End Events', t => { return new Promise(resolve => {
 
     const panorama = new LittlePlanet( 'image', cabinImageURL );
     const container = document.createElement( 'div' );
     panorama.dispatchEvent( { type: 'panolens-container', container } );
     t.is(panorama.container, container);
     panorama.addEventListener( 'load', () => {
-        start( 'touch', container, { finger: 2 }, () => t.end() );
+        start( 'touch', container, { finger: 2 }, () => resolve() );
     })
     panorama.load();
 
-} );
+}); } );
 
-test.cb('Mouse Wheel Event', t => {
+test('Mouse Wheel Event', t => { return new Promise(resolve => {
     const panorama = new LittlePlanet( 'image', cabinImageURL );
     const container = document.createElement( 'div' );
     panorama.dispatchEvent( { type: 'panolens-container', container } );
@@ -113,12 +115,12 @@ test.cb('Mouse Wheel Event', t => {
         const eventDecrease = new window.MouseWheelEvent( -1 );
         container.dispatchEvent( eventIncrease );
         container.dispatchEvent( eventDecrease );
-        t.end();
+        resolve();
     })
     panorama.load();
-});
+}); });
 
-test.cb('ContextMenu Event', t => {
+test('ContextMenu Event', t => { return new Promise(resolve => {
     const panorama = new LittlePlanet( 'image', cabinImageURL );
     const container = document.createElement( 'div' );
     panorama.dispatchEvent( { type: 'panolens-container', container } );
@@ -126,31 +128,31 @@ test.cb('ContextMenu Event', t => {
     panorama.addEventListener( 'load', () => {
         panorama.onContextMenu();
         t.false(panorama.dragging);
-        t.end();
+        resolve();
     })
     panorama.load();
-});
+}); });
 
-test.cb('On Leave', t => {
+test('On Leave', t => { return new Promise(resolve => {
     const panorama = new LittlePlanet( 'image', cabinImageURL );
     const container = document.createElement( 'div' );
     panorama.dispatchEvent( { type: 'panolens-container', container } );
     t.is(panorama.container, container);
     panorama.addEventListener( 'load', () => {
         panorama.onLeave();
-        t.end();
+        resolve();
     })
     panorama.load();
-});
+}); });
 
-test.cb('Dispose', t => {
+test('Dispose', t => { return new Promise(resolve => {
     const panorama = new LittlePlanet( 'image', cabinImageURL );
     const container = document.createElement( 'div' );
     panorama.dispatchEvent( { type: 'panolens-container', container } );
     t.is(panorama.container, container);
     panorama.addEventListener( 'load', () => {
         panorama.dispose();
-        t.end();
+        resolve();
     })
     panorama.load();
-});
+}); });
